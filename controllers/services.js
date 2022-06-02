@@ -10,14 +10,18 @@ const vonage = new Vonage({
 })
 
 const sendSMS = (to, text) =>{
-  const from = "Remer"
+  const from="remer Srevices"
   vonage.message.sendSms(from, to, text, (err, responseData) => {
-      if (err) {
-          return err;
-      } else {                    
-          return responseData.messages[0]
-      }
-  })
+    if (err) {
+        console.log(err);
+    } else {
+        if(responseData.messages[0]['status'] === "0") {
+            console.log("Message sent successfully.");
+        } else {
+            console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
+        }
+    }
+})
 }
 
 const generateOTP = async (phone) => {

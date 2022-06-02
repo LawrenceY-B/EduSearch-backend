@@ -129,7 +129,7 @@ const verifyNumber = async (req, res) => {
     if (result < 1) {
       return res.status(401).json({ message: "No User found" });
     }
-    //verify the nymber
+    //verify the number
     const verify = await verifyOTP(phone, otp);
     if (verify === "wrong")
       return res.status(400).json({
@@ -146,7 +146,7 @@ const verifyNumber = async (req, res) => {
         .status(200)
         .json({
           success: true,
-          message: "The number is succesfully verified",
+          message: "The number has been succesfully verified",
         });
     }
     return res
@@ -177,13 +177,12 @@ const resendOTP = async (req, res) =>{
 }
 const logout = (req, res) => {};
 const forgotPassword = (req, res) => {};
-const changePassword = (req, res) => {};
+
 module.exports = {
   AddNewUser,
   login,
   logout,
   forgotPassword,
-  changePassword,
   verifyNumber,
   resendOTP
 };
