@@ -9,7 +9,7 @@
   "author": "Lawrence Yirenkyi-Boafo",
   "license": "ISC",
   "dependencies": {
-    "@vonage/server-sdk": "^2.10.11",
+    "@vonage/server-sdk": "^2.11.3",
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",

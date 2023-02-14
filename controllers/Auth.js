@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Fpass = require("../models/forgotpass");
 const bcrypt = require("bcrypt");
 const {
   validateUser,
@@ -37,7 +38,7 @@ const AddNewUser = async (req, res) => {
     });
     const OTP = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
-    sendSMS(req.body.Phoneumber, text)
+    sendSMS(phone, text)
 
     if (result)
       return res.status(201).json({
@@ -82,7 +83,7 @@ const login = async (req, res) => {
           // sendSMS(phone, text);
           // console.log(text);
           const text = `You have succesfully logged in`
-          sendSMS(phone, text);
+          // sendSMS(phone, text);
           return res.status(201).json({
             success: true,
             login: text,
@@ -170,20 +171,47 @@ const resendOTP = async (req, res) => {
   }
 }
 const logout = (req, res) => { };
+const resetPassword = async (req, res) => {
+  // const { otp, newpass } = req.body
+  // try {
+  //   const hashedOtp = await bcrypt.hash(otp, 8);
+  //   if (!otp || !newpass) return res.status(401).json({ success: false, message: "missing argument" })
+  
+  //   bcrypt.compare(req.body.otp, result.otp, (Error, outcome) => {
+  //     if (Error) {
+  //       return res.status(401).json({ message: "Something went wrong" });
+  //     }
+  //     if (outcome) {
+  //       console.log('small progrss')
+  //     }
+  //   })
+
+  // } catch (error) {
+  //   console.log(error)
+  //   return res.status(400).json({ success: false, message: `We're working on this` })
+  // }
+}
 const forgotPassword = async (req, res) => {
+
   try {
     const phone = req.body.Phonenumber.replace(
       req.body.Phonenumber.slice(0, 1),
       "233"
     );
     const OTP = await generateOTP(phone);
+    const hashedOtp = await bcrypt.hash(OTP, 8);
     if (!phone) return res.status(400).json({ success: false, message: "Missing arguments" })
     const result = await User.find({ Phonenumber: phone });
-    if (result.length === 1)
+    if (result.length === 1) {
+      const text = `Enter this code ${OTP} to reset password`
+      // sendSMS(phone,text)
+      await Fpass.create({ number: phone, otp: hashedOtp })
       return res
         .status(302)
         .json({ success: true, message: `Enter your ${OTP}` })
-        .redirect('/verifyNumber');
+    } else {
+      return res.status(400).json({ success: false, message: "Phonenumber does not exist" })
+    }
 
   } catch (error) {
     console.log(error)
@@ -197,5 +225,6 @@ module.exports = {
   logout,
   forgotPassword,
   verifyNumber,
-  resendOTP
+  resendOTP,
+  resetPassword
 };

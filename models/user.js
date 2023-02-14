@@ -9,6 +9,7 @@ const UserSchema = new Schema(
     Password: { type: String, required: true },
     Phonenumber: { type: Number, required: true },
     Email: { type: String, required: true },
+
   },
   { timestamps: true }
 );

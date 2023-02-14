@@ -1,16 +1,20 @@
+require ('dotenv').config()
 const Joi = require("joi");
 const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const OTP = require("../models/otpModel");
 const Vonage = require('@vonage/server-sdk')
 
+const vonsecret= process.env.VONAGE_SECRET
+const vonkey= process.env.VONAGE_KEY
 const vonage = new Vonage({
-  apiKey: "444f3ce9",
-  apiSecret: "MT5YMXFST7IdXjpK"
+  apiKey: `${vonkey}`,
+  apiSecret: `${vonsecret}`
 })
 
 const sendSMS = (to, text) =>{
-  const from="remer Srevices"
+  const from="EduSearch"
+  
   vonage.message.sendSms(from, to, text, (err, responseData) => {
     if (err) {
         console.log(err);

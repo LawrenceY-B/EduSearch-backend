@@ -1,5 +1,4 @@
 const express = require('express');
-const res = require('express/lib/response');
 const app = express();
 app.use(express.json())
 const port = 3003;
@@ -24,4 +23,5 @@ app.all('*', (req, res) => {
 
 app.listen(port, () => {
     console.log(`listening to port ${port}`)
+    
 });
