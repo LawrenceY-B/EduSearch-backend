@@ -1,2 +1,2 @@
-# remittance-backend
- Backend for remittance app (REST API)
+# EduSearch-backend
+ Backend for EduSearch app (REST API)
