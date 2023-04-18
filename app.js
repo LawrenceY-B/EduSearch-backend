@@ -3,15 +3,15 @@ const app = express();
 app.use(express.json())
 const port = 3003;
 
-const Loginroutes = require('./routes/Login');
-// const Transferroutes = require('./routes/Transfer')
+const Authroutes = require('./routes/auth.routes');
+const Schoolroutes = require('./routes/sch.routes')
 //mongodb database
 require('./database/db')
 
 
 //routes
-app.use('/api', Loginroutes);
-// app.use('/api', Transferroutes);
+app.use('/api', Authroutes);
+app.use('/api/school',Schoolroutes);
 
 
 

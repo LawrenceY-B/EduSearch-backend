@@ -8,9 +8,10 @@ const {
   verifyOTP,
   validateOTP,
   sendSMS
-} = require("./services");
+} = require("../services/auth.services");
 const jwt = require("jsonwebtoken");
 
+//Creating a new user
 const AddNewUser = async (req, res) => {
   try {
     const { error } = validateUser(req.body);
@@ -36,10 +37,13 @@ const AddNewUser = async (req, res) => {
       Phonenumber: phone,
       Email: Email,
     });
+
+    //generate otp
     const OTP = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
+    //send otp
     sendSMS(phone, text)
-
+ //error handling
     if (result)
       return res.status(201).json({
         success: true,
@@ -56,6 +60,7 @@ const AddNewUser = async (req, res) => {
       .json({ success: false, message: "Something went wrong" });
   }
 };
+//login an existing user
 const login = async (req, res) => {
   try {
     const { error } = validateLogin(req.body);
@@ -88,7 +93,7 @@ const login = async (req, res) => {
             success: true,
             login: text,
             message: "Auth succesful",
-            // token: token,
+            // TO_DO ----- add tokens
             userID: result[0]._id.toString(),
           });
         } else {
@@ -102,6 +107,8 @@ const login = async (req, res) => {
       .json({ success: false, message: "Something went wrong" });
   }
 };
+//TO_DO change phone number to email
+//verify otp
 const verifyNumber = async (req, res) => {
   try {
     const { error } = validateOTP(req.body);
@@ -124,7 +131,7 @@ const verifyNumber = async (req, res) => {
     if (result < 1) {
       return res.status(401).json({ message: "No User found" });
     }
-    //verify the number
+    //check otp status
     const verify = await verifyOTP(phone, otp);
     if (verify === "wrong")
       return res.status(400).json({
@@ -157,6 +164,7 @@ const verifyNumber = async (req, res) => {
       .json({ success: false, message: "Sorry, something went wrong" });
   }
 };
+//resend otp 
 const resendOTP = async (req, res) => {
   try {
     const phone = req.body.Phonenumber
@@ -170,7 +178,9 @@ const resendOTP = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Sorry, something went wrong' });
   }
 }
+//logout 
 const logout = (req, res) => { };
+//reset password
 const resetPassword = async (req, res) => {
   // const { otp, newpass } = req.body
   // try {
@@ -191,6 +201,7 @@ const resetPassword = async (req, res) => {
   //   return res.status(400).json({ success: false, message: `We're working on this` })
   // }
 }
+//work on forgot password logic
 const forgotPassword = async (req, res) => {
 
   try {
