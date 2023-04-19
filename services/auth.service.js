@@ -96,27 +96,6 @@ const verifyOTP = async (phone, otp) =>{
       return error
   }
 }
-const validateSchool = (person) => {
-  const schema = Joi.object({
-    name: Joi.string().required().min(3),
-    Location: Joi.string().required().min(3),
-    // phonenumber: Joi.string().required().max(10).min(10).allow(""),
-    // email: Joi.string()
-    //   .required()
-    //   .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org"] } })
-    //   .allow(""),
-    level: Joi.string().required().min(3),
-    curriculum: Joi.string().required().min(3),
-    price: Joi.number().required().min(500),
-    size: Joi.number().required().min(2),
-    rating: Joi.number().required().min(0).max(5),
-    ImgUrl: Joi.string().required().min(3),
-    isSaved: Joi.boolean().required()
-  });
-
- 
-  return schema.validate(person);
-};
 module.exports = {
   validateUser,
   validateLogin,
@@ -124,5 +103,4 @@ module.exports = {
   verifyOTP,
   validateOTP,
   sendSMS,
-  validateSchool
 };

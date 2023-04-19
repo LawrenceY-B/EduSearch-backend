@@ -8,8 +8,8 @@ const {
   verifyOTP,
   validateOTP,
   sendSMS
-} = require("../services/auth.services");
-const jwt = require("jsonwebtoken");
+} = require("../services/auth.service");
+// const jwt = require("jsonwebtoken");
 
 //Creating a new user
 const AddNewUser = async (req, res) => {
