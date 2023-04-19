@@ -81,13 +81,13 @@ const DeleteFavorite = async (req, res) => {
         if (error)
             return res.status(400).json({ success: false, message: error.details[0].message })
         const Schname = req.body.name
-        const school = await sch.find({ name: Schname });
-        if (school.length !== 1) {
-            AddFavorite(req.body)
-            return res.status(400).json({
-                success: false, message: "School not available"
-            })
-        }
+        // const school = await sch.find({ name: Schname });
+        // if (school.length !== 1) {
+        //     AddFavorite(req.body)
+        //     return res.status(400).json({
+        //         success: false, message: "School not available"
+        //     })
+        // }
         fav.findOneAndDelete({ name: Schname }, (err, deletedUser) => {
             if (err) {
                 res.status(400).json({ success: false, message: "Couldn't delete" })
