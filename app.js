@@ -1,27 +1,27 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-app.use(express.json())
+app.use(express.json());
 const port = 3003;
-
-const Authroutes = require('./routes/auth.routes');
-const Schoolroutes = require('./routes/sch.routes')
+const Authroutes = require("./routes/auth.routes");
+const Schoolroutes = require("./routes/sch.routes");
 //mongodb database
-require('./database/db')
+require("./database/db");
 
-
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods",'POST, GET, PUT, DELETE, PATCH');
+  res.setHeader("Access-Control-Allow-Headers","Content-Type, Authorization");
+  next()
+});
 //routes
-app.use('/api', Authroutes);
-app.use('/api/school',Schoolroutes);
-
-
+app.use("/api", Authroutes);
+app.use("/api/school", Schoolroutes);
 
 //error handler
-app.all('*', (req, res) => {
-    res.status(404).json({ message: 'Page Not Found' })
-})
-
+app.all("*", (req, res) => {
+  res.status(404).json({ message: "Page Not Found" });
+});
 
 app.listen(port, () => {
-    console.log(`listening to port ${port}`)
-    
+  console.log(`listening to port ${port}`);
 });

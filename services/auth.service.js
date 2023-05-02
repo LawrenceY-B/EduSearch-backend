@@ -1,36 +1,39 @@
-require ('dotenv').config()
+require("dotenv").config();
 const Joi = require("joi");
 const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const OTP = require("../models/otpModel");
-const Vonage = require('@vonage/server-sdk')
+const Vonage = require("@vonage/server-sdk");
 
-const vonsecret= process.env.VONAGE_SECRET
-const vonkey= process.env.VONAGE_KEY
+const vonsecret = process.env.VONAGE_SECRET;
+const vonkey = process.env.VONAGE_KEY;
 const vonage = new Vonage({
   apiKey: `${vonkey}`,
-  apiSecret: `${vonsecret}`
-})
+  apiSecret: `${vonsecret}`,
+});
 
-const sendSMS = (to, text) =>{
-  const from="EduSearch"
-  
+const sendSMS = (to, text) => {
+  const from = "EduSearch";
+
   vonage.message.sendSms(from, to, text, (err, responseData) => {
     if (err) {
-        console.log(err);
+      console.log(err);
     } else {
-        if(responseData.messages[0]['status'] === "0") {
-            console.log("Message sent successfully.");
-        } else {
-            console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
-        }
+      if (responseData.messages[0]["status"] === "0") {
+        console.log("Message sent successfully.");
+      } else {
+        console.log(
+          `Message failed with error: ${responseData.messages[0]["error-text"]}`
+        );
+      }
     }
-})
-}
+  });
+};
 
 const generateOTP = async (phone) => {
   try {
-    const gen = otpGenerator.generate(6, {
+    const otplength = 6
+    let gen = otpGenerator.generate(otplength, {
       digits: true,
       lowerCaseAlphabets: false,
       upperCaseAlphabets: false,
@@ -38,8 +41,8 @@ const generateOTP = async (phone) => {
     });
     const otp = await bcrypt.hash(gen, 8);
 
-    const otpHolder = await OTP.find({ number: phone });
-    if (otpHolder.length === 1) {
+    const existingOTP = await OTP.findOne({ number: phone });
+    if (existingOTP) {
       await OTP.updateOne({ otp: otp }, { number: phone });
     } else {
       await OTP.create({ number: phone, otp: otp });
@@ -49,7 +52,6 @@ const generateOTP = async (phone) => {
     return error;
   }
 };
-
 
 const validateUser = (person) => {
   const schema = Joi.object({
@@ -74,28 +76,41 @@ const validateLogin = (person) => {
 };
 const validateOTP = (person) => {
   const schema = Joi.object({
-    Phonenumber: Joi.string().required().max(10).min(10).allow(""),
+    Phonenumber: Joi.string().required().max(10).min(10),
     otp: Joi.string().required().min(6).max(6),
   });
   return schema.validate(person);
 };
-//otp verification
-const verifyOTP = async (phone, otp) =>{
-  try {
-      const otpHolder= await OTP.find({
-        number: phone
-      });
-      if (otpHolder < 1) {
-        return 'expired';
-      }
-      var valid=await bcrypt.compare(otp,otpHolder[0].otp);
 
-      if(valid){return "valid";}
-      return "wrong";                 
+/**
+ * Verify OTP for a given phone number
+ * @param {string} phone - The phone number to verify
+ * @param {string} otp - The OTP to verify
+ * @returns {string} - Returns "valid" if the OTP is valid, "wrong" if the OTP is invalid, or "expired" if the OTP has expired
+ */
+const verifyOTP = async (phone, otp) => {
+  try {
+    const otpHolder = await OTP.findOne({
+      number: phone,
+    });
+    if (!otpHolder) {
+      return "expired";
+    }
+    if (await bcrypt.compare(otp, otpHolder.otp)) {
+      return "valid";
+    }
+    return "wrong";
   } catch (error) {
-      return error
+    throw error;
   }
-}
+};
+const validatePhoneNumber = (phone) => {
+  const formattedPhone = phone.replace(phone.slice(0, 1), "233");
+  if (!phone) {
+    throw new Error("Phone number is required");
+  }
+  return formattedPhone;
+};
 module.exports = {
   validateUser,
   validateLogin,
@@ -103,4 +118,5 @@ module.exports = {
   verifyOTP,
   validateOTP,
   sendSMS,
+  validatePhoneNumber,
 };
