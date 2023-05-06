@@ -160,7 +160,7 @@ const verifyNumber = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(400)
+      .status(500)
       .json({ success: false, message: "Sorry, something went wrong" });
   }
 };
@@ -179,31 +179,42 @@ const resendOTP = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res
-      .status(400)
+      .status(500)
       .json({ success: false, message: "Sorry, something went wrong" });
   }
 };
 //logout
-const logout = (req, res) => {};
-//reset password
-const resetPassword = async (req, res) => {
-  // const { otp, newpass } = req.body
-  // try {
-  //   const hashedOtp = await bcrypt.hash(otp, 8);
-  //   if (!otp || !newpass) return res.status(401).json({ success: false, message: "missing argument" })
-  //   bcrypt.compare(req.body.otp, result.otp, (Error, outcome) => {
-  //     if (Error) {
-  //       return res.status(401).json({ message: "Something went wrong" });
-  //     }
-  //     if (outcome) {
-  //       console.log('small progrss')
-  //     }
-  //   })
-  // } catch (error) {
-  //   console.log(error)
-  //   return res.status(400).json({ success: false, message: `We're working on this` })
-  // }
+const logout = (req, res) => {
+  try {
+    const fullheader = req.headers.authorization;
+    const token = fullheader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json("Unauthorized");
+    }
+    jwt.verify(token, `${tokenkey}`, (err, decoded) => {
+      if (err) {
+        return res.status(500).send('Server error');
+      }
+      
+      const payload = {
+        sub: decoded.sub, // add the subject property
+        iat: Date.now() / 1000,
+        exp: 0,
+      };
+      
+      const newToken = jwt.sign(payload, `${tokenkey}`);
+      
+      // Respond with a success message and the new token
+      return res.status(200).json({ message: 'Logged out', token: newToken });
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Sorry, something went wrong" });
+  }
 };
+//reset password
+const resetPassword = async (req, res) => {};
 //work on forgot password logic
 const forgotPassword = async (req, res) => {
   try {

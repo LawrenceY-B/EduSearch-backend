@@ -15,7 +15,7 @@ router.post("/signup", AddNewUser);
 router.post("/login", login);
 router.post("/verifynumber", verifyNumber);
 router.post('/resendotp', resendOTP)
-router.delete("/logout", logout);
+router.get("/logout", verifyToken, logout);
 router.post("/forgotpass", verifyToken, forgotPassword);
 router.post("/resetpass", resetPassword);
 // router.params()
