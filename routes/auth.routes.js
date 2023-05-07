@@ -6,9 +6,10 @@ const {
   verifyNumber,
   forgotPassword,
   resendOTP,
-  resetPassword
+  resetPassword,
+  verifyreset
 } = require("../controllers/Auth");
-const {verifyToken}= require("../middleware/isAuth");
+const {verifyToken, verifyResetToken}= require("../middleware/isAuth");
 const router = express.Router();
 
 router.post("/signup", AddNewUser);
@@ -16,8 +17,9 @@ router.post("/login", login);
 router.post("/verifynumber", verifyNumber);
 router.post('/resendotp', resendOTP)
 router.get("/logout", verifyToken, logout);
-router.post("/forgotpass", verifyToken, forgotPassword);
-router.post("/resetpass", resetPassword);
+router.post("/forgotpass", forgotPassword);
+router.post("/verifyresetotp",verifyreset)
+router.post("/resetpass", verifyResetToken,resetPassword);
 // router.params()
 
 

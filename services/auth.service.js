@@ -104,12 +104,24 @@ const verifyOTP = async (phone, otp) => {
     throw error;
   }
 };
-const validatePhoneNumber = (phone) => {
-  const formattedPhone = phone.replace(phone.slice(0, 1), "233");
-  if (!phone) {
-    throw new Error("Phone number is required");
-  }
-  return formattedPhone;
+
+/**
+ * validute use phone number
+ * @param {*} pass 
+ * @returns 
+ */
+const validatePhoneNumber = (phone)=>{
+  const schema = Joi.object({
+    Phonenumber: Joi.string().required().max(10).min(10).allow(""),
+  })
+  return schema.validate(phone);
+}
+const validatePassword = (pass) => {
+  const schema = Joi.object({
+    NewPassword: Joi.string().required().min(6),
+    ConfirmNewPassword: Joi.ref('NewPassword'),
+  });
+  return schema.validate(pass);
 };
 module.exports = {
   validateUser,
@@ -118,5 +130,6 @@ module.exports = {
   verifyOTP,
   validateOTP,
   sendSMS,
+  validatePassword,
   validatePhoneNumber,
 };
