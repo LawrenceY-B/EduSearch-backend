@@ -88,7 +88,7 @@ const login = async (req, res) => {
       }
       if (outcome) {
         /**Add new token**/
-        const token = jwt.sign({ userId: user._id.toString() }, `${tokenkey}`, {
+        const token = jwt.sign({ userEmail: user.Email }, `${tokenkey}`, {
           expiresIn: "4h",
         });
         user.token = token;
@@ -113,7 +113,7 @@ const login = async (req, res) => {
   }
 };
 //TO_DO change phone number to email
-//verify otp
+//test and see if changes the value on the db
 const verifyNumber = async (req, res) => {
   try {
     const { error } = validateOTP(req.body);
@@ -149,6 +149,7 @@ const verifyNumber = async (req, res) => {
         message: "You used an expired OTP. Please generate a new one",
       });
     else if (verify === "valid") {
+      result.isVerified = true;
       return res.status(200).json({
         success: true,
         message: "The number has been succesfully verified",
@@ -311,7 +312,7 @@ const verifyreset = async (req, res) => {
       });
     else if (verify === "valid") {
       const token = jwt.sign({ userEmail: result.Email }, `${tokenkey}`, {
-        expiresIn: "4h",
+        expiresIn: 900,
       });
       result.resetToken = token;
       return res.status(200).json({
