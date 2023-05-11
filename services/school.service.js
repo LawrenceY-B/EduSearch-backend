@@ -13,7 +13,6 @@ const validateSchool = (school) => {
         size: Joi.number().required().min(2),
         rating: Joi.number().required().min(0).max(5),
         ImgUrl: Joi.string().required().min(3).uri(),
-        isSaved: Joi.boolean().required()
     });
 
 
@@ -23,7 +22,6 @@ const validateSchool = (school) => {
 const validateFav = (school) => {
     const schema = Joi.object({
         name: Joi.string().required().min(3),
-        isSaved: Joi.boolean().required()
     });
     return schema.validate(school);
 }

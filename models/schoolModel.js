@@ -12,7 +12,6 @@ const schoolSchema = new Schema({
     Location: String,
     Rating: Number,
     ImgUrl: String,
-    isSaved: Boolean,
   });
   
   const Sch= mongoose.model('Schools', schoolSchema);
