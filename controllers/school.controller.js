@@ -7,6 +7,7 @@ const {
   extractMail,
 } = require("../services/school.service");
 const jwt = require("jsonwebtoken");
+const Sch = require("../models/schoolModel");
 const tokenkey = process.env.TOKEN_KEY;
 
 const AddNewSchool = async (req, res) => {
@@ -57,7 +58,7 @@ const AddFavorite = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
-    const {name} = req.body;
+    const { name } = req.body;
     const schoolname = {
       name: name,
     };
@@ -85,15 +86,17 @@ const AddFavorite = async (req, res) => {
       School: school._id,
     });
 
-    const Saved = await User.findOne({ Email: userEmail });
-    Saved.Favorites.push(result._id);
-    await Saved.save();
-    
-   if(!Saved) {
-    throw new Error("School could not be saved")
-   }
-   else {res.status(200).json({ success: true, message:" School has been saved"})}
+    const addFavorite = await User.findOne({ Email: userEmail });
+    addFavorite.Favorites.push(result);
+    await addFavorite.save();
 
+    if (!addFavorite) {
+      throw new Error("School could not be saved");
+    } else {
+      res
+        .status(200)
+        .json({ success: true, message: " School has been saved" });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -101,40 +104,70 @@ const AddFavorite = async (req, res) => {
     });
   }
 };
-const GetFavorite= async (req, res) => {
-try {
-  const userEmail= extractMail(req,res);
-  if(!userEmail) {res.status(401).json({ success: false, message:"Unauthorized"})}
-  let userfavorites= await User.findOne({ Email: userEmail}).populate('Favorites.Users')
-  if(!userfavorites){
-    res.status(404).json({success: false, message:"Error while fetching favorites"})
-  }else{res.status(201).json({success:true, favorites:userfavorites})}
-} catch (error) {
-  res.status(500).json({success: false, message: error.message || "Something went wrong"})
-}
+const GetFavorite = async (req, res) => {
+  try {
+    const userEmail = extractMail(req, res);
+    if (!userEmail) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    let userfavorites = await User.findOne({ Email: userEmail }).populate(
+      "Favorites.Users"
+    );
+    if (!userfavorites) {
+      res
+        .status(404)
+        .json({ success: false, message: "Error while fetching favorites" });
+    } else {
+      res.status(201).json({ success: true, favorites: userfavorites });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+  }
 };
 const DeleteFavorite = async (req, res) => {
-  // try {
-  //   const { error } = validateFav(req.body);
-  //   if (error)
-  //     return res
-  //       .status(400)
-  //       .json({ success: false, message: error.details[0].message });
-  //   const Schname = req.body.name;
-  //   Favorite.findOneAndDelete({ name: Schname }, (err, deletedUser) => {
-  //     if (err) {
-  //       res.status(400).json({ success: false, message: "Couldn't delete" });
-  //     } else {
-  //       res
-  //         .status(200)
-  //         .json({ success: true, message: `Deleted user: ${deletedUser}` });
-  //     }
-  //   });
-  // } catch (e) {
-  //   return res
-  //     .status(400)
-  //     .json({ success: false, message: "Oops! Something went wrong" });
-  // }
+  try {
+    const { error } = validateFav(req.body);
+    if (error)
+      return res
+        .status(400)
+        .json({ success: false, message: error.details[0].message });
+    const { name: Schname } = req.body;
+    let schoolID = await Sch.findOne({ name: Schname });
+    if (!schoolID) {
+      return res
+        .status(404)
+        .json({ success: false, message: "School not found" });
+    }
+    schoolID = schoolID._id;
+    const result = await Favorite.findOneAndDelete({ School: schoolID });
+    if (!result) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Favorite not found" });
+    }
+    const userId = result.UserData;
+    let user = await User.findById(userId);
+    // console.log(user);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Couldn't find user" });
+    }
+    user.Favorites = user.Favorites.filter(
+      (favoriteId) => favoriteId.toString() !== result._id.toString()
+    );
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: `Deleted favorite` });
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Oops! Something went wrong" });
+  }
 };
 
 const GetSearchResults = async (req, res) => {};
@@ -146,14 +179,3 @@ module.exports = {
   GetFavorite,
   GetSearchResults,
 };
-//  //it is not saving :( worko on bugs later
-//       //check to see if scchool is alreday in favorites
-//       res.status(200).json({ mesages: "Favorite added successfully" });
-
-//       await Favorite.findOneAndDelete({ School: school._id });
-//       // const userDetails = await User.findOne({ Email: userEmail });
-
-//       // userDetails.Favorites.pop(result._id);
-//       // userDetails.save();
-
-//       res.status(200).json({ mesages: "Favorite deleted successfully" });
