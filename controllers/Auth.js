@@ -88,7 +88,7 @@ const login = async (req, res) => {
       }
       if (outcome) {
         /**Add new token**/
-        const token = jwt.sign({ userEmail: user.Email }, `${tokenkey}`, {
+        const token = jwt.sign({ userEmail: user.Email, userId:user._id }, `${tokenkey}`, {
           expiresIn: "4h",
         });
         user.token = token;

@@ -67,16 +67,20 @@ const AddFavorite = async (req, res) => {
       res.status(400).json({ mesages: "School not found" });
     }
 
-    let userEmail = extractMail(req, res);
+    let userData = extractMail(req, res);
+    let userEmail = userData.userEmail;
+    let userID = userData.userId;
 
-    const userDetails = await User.findOne({ Email: userEmail });
+    const userDetails = await User.findOne({ _id: userID });
     if (!userDetails) {
       res.status(401).json({ mesages: "User not found" });
     }
+    // check if the favorite is for the current user before you check for school id
 
-    //add new favorites
-    const existing = await Favorite.find({ School: school._id });
-    if (existing.length === 1)
+    const existing = await Favorite.findOne({ UserData: userID })
+      .where("School")
+      .equals(school._id);
+    if (existing)
       return res
         .status(403)
         .json({ success: false, message: "School is already in favorites" });
@@ -87,7 +91,7 @@ const AddFavorite = async (req, res) => {
     });
 
     const addFavorite = await User.findOne({ Email: userEmail });
-    addFavorite.Favorites.push(result);
+    addFavorite.FavoriteSchools.push(result);
     await addFavorite.save();
 
     if (!addFavorite) {
@@ -106,13 +110,19 @@ const AddFavorite = async (req, res) => {
 };
 const GetFavorite = async (req, res) => {
   try {
-    const userEmail = extractMail(req, res);
+    const userData = extractMail(req, res);
+    let userEmail = userData.userEmail;
     if (!userEmail) {
       res.status(401).json({ success: false, message: "Unauthorized" });
     }
-    let userfavorites = await User.findOne({ Email: userEmail }).populate(
-      "Favorites.Users"
-    );
+    let userfavorites = await User.findOne({ Email: userEmail }).populate({
+      path: "FavoriteSchools",
+      populate: {
+        path: "School",
+        options: { strictPopulate: false }
+      },
+    });
+
     if (!userfavorites) {
       res
         .status(404)
@@ -142,34 +152,44 @@ const DeleteFavorite = async (req, res) => {
         .json({ success: false, message: "School not found" });
     }
     schoolID = schoolID._id;
-    const result = await Favorite.findOneAndDelete({ School: schoolID });
-    if (!result) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Favorite not found" });
-    }
-    const userId = result.UserData;
-    let user = await User.findById(userId);
-    // console.log(user);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Couldn't find user" });
-    }
-    user.Favorites = user.Favorites.filter(
-      (favoriteId) => favoriteId.toString() !== result._id.toString()
-    );
+    const userData = extractMail(req, res);
+    let userIdentifier = userData.userId;
+    const DeleteFav = await Favorite.findOne({ UserData: userIdentifier });
+    if (!DeleteFav) {
+      res.status(404).json({ message: "User not found" });
+    } else {
+      const result = await Favorite.findOneAndDelete({ School: schoolID });
+      if (!result) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Favorite not found" });
+      }
+      const userId = result.UserData;
+      let user = await User.findById(userId);
+      // console.log(user);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Couldn't find user" });
+      }
+      user.FavoriteSchools = user.FavoriteSchools.filter(
+        (favoriteId) => favoriteId.toString() !== result._id.toString()
+      );
 
-    await user.save();
+      await user.save();
 
-    res.status(200).json({ success: true, message: `Deleted favorite` });
+      res.status(200).json({ success: true, message: `Deleted favorite` });
+    }
   } catch (err) {
     return res
       .status(400)
       .json({ success: false, message: "Oops! Something went wrong" });
   }
 };
+//work on getsearch results
+//learn how to do queries
 
+//then add mulyer and go though aws s3 sdk
 const GetSearchResults = async (req, res) => {};
 module.exports = {
   AddNewSchool,

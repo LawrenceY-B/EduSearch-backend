@@ -33,8 +33,7 @@ const extractMail=(req, res)=> {
     }
     try {
       const decoded = jwt.decode(token, `${tokenkey}`);
-      return decoded.userEmail;
-      
+      return decoded;
     } catch (error) {
       return res.status(401).json("Unauthorized");
     }

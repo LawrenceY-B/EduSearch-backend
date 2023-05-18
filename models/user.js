@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   token: { type: String },
   resetToken: { type: String },
   isVerified: { type: Boolean },
-  Favorites: [ {type: mongoose.Schema.Types.ObjectId, ref: "Favorites",}],
+  FavoriteSchools: [ {type: mongoose.Schema.Types.ObjectId, ref: "Favorites",}],
   
 });
 
