@@ -5,6 +5,7 @@ const {
   validateSchool,
   validateFav,
   extractMail,
+  validateQuery,
 } = require("../services/school.service");
 const jwt = require("jsonwebtoken");
 const Sch = require("../models/schoolModel");
@@ -12,27 +13,43 @@ const tokenkey = process.env.TOKEN_KEY;
 
 const AddNewSchool = async (req, res) => {
   try {
+    const {
+      name,
+      email,
+      phone,
+      curriculum,
+      level,
+      size,
+      background,
+      ImgUrl,
+      price,
+      rating,
+      location,
+    } = req.body;
     const { error } = validateSchool(req.body);
     if (error)
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
-    let schoolName = req.body.name;
-    const school = await sch.find({ name: schoolName });
+    const Phonenumber = phone.replace(phone.slice(0, 1), "233");
+    const school = await sch.find({ name: name });
     if (school.length === 1)
       return res
         .status(403)
         .json({ success: false, message: "School already exists" });
     const result = sch.create({
-      name: req.body.name,
-      curriculum: req.body.curriculum,
-      level: req.body.level,
-      size: req.body.size,
-      price: req.body.price,
-      Location: req.body.location,
-      Rating: req.body.rating,
-      ImgUrl: req.body.ImgUrl,
-      isSaved: false,
+      Name: name,
+      Email: email,
+      Phone: Phonenumber,
+      Curriculum: curriculum,
+      Level: level,
+      Size: size,
+      Background: background,
+      ImgUrl: ImgUrl,
+      Price: price,
+      Rating: rating,
+      Location: location,
+      isVerified: true,
     });
     if (result) {
       return res
@@ -46,7 +63,7 @@ const AddNewSchool = async (req, res) => {
   } catch (e) {
     return res
       .status(400)
-      .json({ success: false, message: "Something wrong happened here" });
+      .json({ success: false, message: e.message });
   }
 };
 const DeleteSchool = (req, res) => {};
@@ -63,6 +80,7 @@ const AddFavorite = async (req, res) => {
       name: name,
     };
     const school = await sch.findOne(schoolname);
+    //check if school exists
     if (!school) {
       res.status(400).json({ mesages: "School not found" });
     }
@@ -70,12 +88,11 @@ const AddFavorite = async (req, res) => {
     let userData = extractMail(req, res);
     let userEmail = userData.userEmail;
     let userID = userData.userId;
-
+    //check if userexists
     const userDetails = await User.findOne({ _id: userID });
     if (!userDetails) {
       res.status(401).json({ mesages: "User not found" });
     }
-    // check if the favorite is for the current user before you check for school id
 
     const existing = await Favorite.findOne({ UserData: userID })
       .where("School")
@@ -119,7 +136,7 @@ const GetFavorite = async (req, res) => {
       path: "FavoriteSchools",
       populate: {
         path: "School",
-        options: { strictPopulate: false }
+        options: { strictPopulate: false },
       },
     });
 
@@ -166,7 +183,6 @@ const DeleteFavorite = async (req, res) => {
       }
       const userId = result.UserData;
       let user = await User.findById(userId);
-      // console.log(user);
       if (!user) {
         return res
           .status(404)
@@ -189,8 +205,29 @@ const DeleteFavorite = async (req, res) => {
 //work on getsearch results
 //learn how to do queries
 
-//then add mulyer and go though aws s3 sdk
-const GetSearchResults = async (req, res) => {};
+//then add multer and go though aws s3 sdk
+const GetSearchResults = async (req, res) => {
+  try {
+    const {
+      curriculum,
+      level,
+      minsize,
+      maxsize,
+      background,
+      minprice,
+      maxprice,
+      rating,
+      location,
+    } = req.query;
+    const { error } = validateQuery(req.query);
+    if (error) {
+      res.status(401).json({ message: error.message });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   AddNewSchool,
   DeleteSchool,
