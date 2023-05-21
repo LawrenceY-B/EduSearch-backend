@@ -4,25 +4,24 @@ const tokenkey = process.env.TOKEN_KEY;
 //Identify the cause of the error
 const validateSchool = (school) => {
   const schema = Joi.object({
-    name: Joi.string().required.min(3),
+    name: Joi.string().min(6).required(),
+  
+    phone: Joi.string().max(10).min(10).allow("").required(),
     email: Joi.string()
-      .required.email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net", "org"] },
-      })
-      .allow(""),
-    phone: Joi.string().required().max(10).min(10).allow(""),
-    curriculum: Joi.string().required().min(3),
-    level: Joi.string().required().min(3),
-    size: Joi.number().required().min(3),
-    background: Joi.string().required().min(3),
-    price: Joi.number().required().min(550),
-    rating: Joi.string().required().min(3),
-    location: Joi.string().required().min(3),
-    ImgUrl: Joi.string().required().min(3).uri(),
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net", "org"] },
+    }).required().allow(""),
+    curriculum: Joi.string().min(3).required(),
+    level: Joi.string().min(3).required(),
+    size: Joi.number().min(3).required(),
+    background: Joi.string().min(3).required(),
+    price: Joi.number().min(550).required(),
+    rating: Joi.string().min(3).required(),
+    location: Joi.string().min(3).required(),
+    ImgUrl: Joi.string().min(3).uri().required(),
   });
   return schema.validate(school);
- 
 };
 
 const validateFav = (school) => {

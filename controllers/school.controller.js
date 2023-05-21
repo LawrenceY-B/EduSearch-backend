@@ -1,4 +1,4 @@
-const sch = require("../models/schoolModel");
+const sch= require("../models/schoolModel")
 const Favorite = require("../models/fav.model");
 const User = require("../models/user");
 const {
@@ -13,6 +13,12 @@ const tokenkey = process.env.TOKEN_KEY;
 
 const AddNewSchool = async (req, res) => {
   try {
+   
+    const { error } = validateSchool(req.body);
+    if (error)
+    return res
+      .status(400)
+      .json({ success: false, message: error.details[0].message });
     const {
       name,
       email,
@@ -26,13 +32,8 @@ const AddNewSchool = async (req, res) => {
       rating,
       location,
     } = req.body;
-    const { error } = validateSchool(req.body);
-    if (error)
-      return res
-        .status(400)
-        .json({ success: false, message: error.details[0].message });
     const Phonenumber = phone.replace(phone.slice(0, 1), "233");
-    const school = await sch.find({ name: name });
+    const school = await sch.find({ Name: name });
     if (school.length === 1)
       return res
         .status(403)
@@ -49,7 +50,7 @@ const AddNewSchool = async (req, res) => {
       Price: price,
       Rating: rating,
       Location: location,
-      isVerified: true,
+      IsVerified: false,
     });
     if (result) {
       return res
@@ -77,7 +78,7 @@ const AddFavorite = async (req, res) => {
         .json({ success: false, message: error.details[0].message });
     const { name } = req.body;
     const schoolname = {
-      name: name,
+      Name: name,
     };
     const school = await sch.findOne(schoolname);
     //check if school exists
@@ -162,7 +163,7 @@ const DeleteFavorite = async (req, res) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
     const { name: Schname } = req.body;
-    let schoolID = await Sch.findOne({ name: Schname });
+    let schoolID = await Sch.findOne({ Name: Schname });
     if (!schoolID) {
       return res
         .status(404)
