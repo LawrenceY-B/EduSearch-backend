@@ -39,6 +39,7 @@ const AddNewUser = async (req, res) => {
       Password: password,
       Phonenumber: phone,
       Email: Email,
+      isVerified: false,
     });
 
     //generate otp
@@ -80,29 +81,44 @@ const login = async (req, res) => {
     );
     const user = await User.findOne({ Phonenumber: phone });
     if (!user) {
-      return res.status(401).json({ message: "Invalid Phonenumber" });
+      return res
+        .status(401)
+        .json({ success: false, message: "User not found" });
     }
-    bcrypt.compare(req.body.Password, user.Password, (Error, outcome) => {
-      if (Error) {
-        return res.status(401).json({ message: "Something went wrong" });
+    if (user.isVerified === false) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Number has not been verified" });
+    }
+    bcrypt.compare(req.body.Password, user.Password, (error, outcome) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).json({ message: "An error occurred" });
       }
       if (outcome) {
         /**Add new token**/
-        const token = jwt.sign({ userEmail: user.Email, userId:user._id }, `${tokenkey}`, {
-          expiresIn: "4h",
-        });
+        const token = jwt.sign(
+          { userEmail: user.Email, userId: user._id },
+          `${tokenkey}`,
+          {
+            expiresIn: "4h",
+          }
+        );
         user.token = token;
+        user.save();
         const text = `You have succesfully logged in`;
         // sendSMS(phone, text);
         return res.status(201).json({
           success: true,
           login_message: text,
-          message: "Auth succesful",
+          message: "Authentication successful",
           userID: user._id.toString(),
           token: token,
         });
       } else {
-        return res.json({ success: false, message: "Passwords do not match" });
+        return res
+          .status(401)
+          .json({ success: false, message: "Passwords do not match" });
       }
     });
   } catch (error) {
@@ -132,8 +148,8 @@ const verifyNumber = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Missing arguments" });
     //check if user exists
-    const result = await User.find({ Phonenumber: phone });
-    if (result < 1) {
+    const result = await User.findOne({ Phonenumber: phone });
+    if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
     //check otp status
@@ -149,7 +165,9 @@ const verifyNumber = async (req, res) => {
         message: "You used an expired OTP. Please generate a new one",
       });
     else if (verify === "valid") {
-      result.isVerified = true;
+     result.isVerified=true;
+     result.save();
+
       return res.status(200).json({
         success: true,
         message: "The number has been succesfully verified",
@@ -314,7 +332,6 @@ const verifyreset = async (req, res) => {
       const token = jwt.sign({ userEmail: result.Email }, `${tokenkey}`, {
         expiresIn: 900,
       });
-      result.resetToken = token;
       return res.status(200).json({
         success: true,
         token: token,

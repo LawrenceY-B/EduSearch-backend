@@ -8,8 +8,6 @@ const UserSchema = new Schema({
   Password: { type: String },
   Phonenumber: { type: Number },
   Email: { type: String },
-  token: { type: String },
-  resetToken: { type: String },
   isVerified: { type: Boolean },
   FavoriteSchools: [ {type: mongoose.Schema.Types.ObjectId, ref: "Favorites",}],
   

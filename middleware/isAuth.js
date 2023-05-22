@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const User = require("../models/user");
+
 const tokenkey = process.env.TOKEN_KEY;
 
 const verifyToken = async (req, res, next) => {
@@ -17,8 +19,8 @@ const verifyToken = async (req, res, next) => {
     req.userId = decodedToken.userId;
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
     }
     res.status(400).json({ message: "something went wrong" });
     console.log(error);
@@ -36,19 +38,20 @@ const verifyResetToken = async (req, res, next) => {
       const error = new Error("Not Authorized");
       res.status(400).json(error);
     }
-    req.userId = decodedToken.userId;
+    req.userId= decodedToken.userId;
+   
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
     }
     res.status(400).json({ message: "something went wrong" });
     console.log(error);
   }
 };
-const isverified = (req, res, next) => {};
+
+
 module.exports = {
   verifyToken,
-  isverified,
-  verifyResetToken
+  verifyResetToken,
 };
