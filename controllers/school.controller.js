@@ -1,4 +1,4 @@
-const sch= require("../models/schoolModel")
+const sch = require("../models/schoolModel");
 const Favorite = require("../models/fav.model");
 const User = require("../models/user");
 const {
@@ -13,12 +13,11 @@ const tokenkey = process.env.TOKEN_KEY;
 
 const AddNewSchool = async (req, res) => {
   try {
-   
     const { error } = validateSchool(req.body);
     if (error)
-    return res
-      .status(400)
-      .json({ success: false, message: error.details[0].message });
+      return res
+        .status(400)
+        .json({ success: false, message: error.details[0].message });
     const {
       name,
       email,
@@ -62,9 +61,7 @@ const AddNewSchool = async (req, res) => {
         .json({ succcess: false, message: "Couldn't add school" });
     }
   } catch (e) {
-    return res
-      .status(400)
-      .json({ success: false, message: e.message });
+    return res.status(400).json({ success: false, message: e.message });
   }
 };
 const DeleteSchool = (req, res) => {};
@@ -209,6 +206,10 @@ const DeleteFavorite = async (req, res) => {
 //then add multer and go though aws s3 sdk
 const GetSearchResults = async (req, res) => {
   try {
+    const { error } = validateQuery(req.query);
+    if (error) {
+      res.status(401).json({ message: error.message });
+    }
     const {
       curriculum,
       level,
@@ -220,10 +221,35 @@ const GetSearchResults = async (req, res) => {
       rating,
       location,
     } = req.query;
-    const { error } = validateQuery(req.query);
-    if (error) {
-      res.status(401).json({ message: error.message });
+    const search = await sch
+      .find()
+      .where("Curriculum")
+      .equals(curriculum)
+      .where("Level")
+      .equals(level)
+      .where("Size")
+      .gte(minsize)
+      .lte(maxsize)
+      .where("Background")
+      .equals(background)
+      .where("Price")
+      .gte(minprice)
+      .lte(maxprice);
+
+    if (rating) {
+     await search.where("Rating").equals(rating);
     }
+    if (location) {
+     await search.where("Location").equals(location);
+    }
+//read on pagination and skipcount
+    if (search.length === 0 ) {
+      res.status(404).json({ success: false, message: "No Search Found" });
+    }
+    else{
+      res.status(200).json({ success: true, mesages: search });
+    }
+    console.log(search.length);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

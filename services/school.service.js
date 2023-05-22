@@ -52,8 +52,8 @@ const validateQuery = (query) => {
     background: Joi.string().required().min(3),
     minprice: Joi.number().required().min(500),
     maxprice: Joi.number().required().min(550),
-    rating: Joi.string().required().min(3),
-    location: Joi.string().required().min(3),
+    rating: Joi.string().min(3),
+    location: Joi.string().min(3),
   });
   return schema.validate(query);
 };
