@@ -67,10 +67,30 @@ const validateUser = (person) => {
   return schema.validate(person);
 };
 
+const validateAdmin = (person) => {
+  const schema = Joi.object({
+    name: Joi.string().required().min(3),
+    password: Joi.string().required().min(6),
+    phone: Joi.string().required().max(10).min(10).allow(""),
+    email: Joi.string()
+      .required()
+      .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org"] } })
+      .allow(""),
+  });
+  return schema.validate(person);
+};
+
 const validateLogin = (person) => {
   const schema = Joi.object({
     Phonenumber: Joi.string().required().max(10).min(10).allow(""),
     Password: Joi.string().required().min(6),
+  });
+  return schema.validate(person);
+};
+const validateAdminLogin = (person) => {
+  const schema = Joi.object({
+    phone: Joi.string().required().max(10).min(10).allow(""),
+    password: Joi.string().required().min(6),
   });
   return schema.validate(person);
 };
@@ -132,4 +152,6 @@ module.exports = {
   sendSMS,
   validatePassword,
   validatePhoneNumber,
+  validateAdmin,
+  validateAdminLogin
 };

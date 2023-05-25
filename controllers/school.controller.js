@@ -1,8 +1,8 @@
 const sch = require("../models/schoolModel");
 const Favorite = require("../models/fav.model");
 const User = require("../models/user");
+const aob= require("../models/aob.model");
 const {
-  validateSchool,
   validateFav,
   extractMail,
   validateQuery,
@@ -10,61 +10,6 @@ const {
 const jwt = require("jsonwebtoken");
 const Sch = require("../models/schoolModel");
 const tokenkey = process.env.TOKEN_KEY;
-
-const AddNewSchool = async (req, res) => {
-  try {
-    const { error } = validateSchool(req.body);
-    if (error)
-      return res
-        .status(400)
-        .json({ success: false, message: error.details[0].message });
-    const {
-      name,
-      email,
-      phone,
-      curriculum,
-      level,
-      size,
-      background,
-      ImgUrl,
-      price,
-      rating,
-      location,
-    } = req.body;
-    const Phonenumber = phone.replace(phone.slice(0, 1), "233");
-    const school = await sch.find({ Name: name });
-    if (school.length === 1)
-      return res
-        .status(403)
-        .json({ success: false, message: "School already exists" });
-    const result = sch.create({
-      Name: name,
-      Email: email,
-      Phone: Phonenumber,
-      Curriculum: curriculum,
-      Level: level,
-      Size: size,
-      Background: background,
-      ImgUrl: ImgUrl,
-      Price: price,
-      Rating: rating,
-      Location: location,
-      IsVerified: false,
-    });
-    if (result) {
-      return res
-        .status(200)
-        .json({ succcess: true, message: "School has been succesfully added" });
-    } else {
-      return res
-        .status(400)
-        .json({ succcess: false, message: "Couldn't add school" });
-    }
-  } catch (e) {
-    return res.status(400).json({ success: false, message: e.message });
-  }
-};
-const DeleteSchool = (req, res) => {};
 
 const AddFavorite = async (req, res) => {
   try {
@@ -200,10 +145,8 @@ const DeleteFavorite = async (req, res) => {
       .json({ success: false, message: "Oops! Something went wrong" });
   }
 };
-//work on getsearch results
-//learn how to do queries
 
-//then add multer and go though aws s3 sdk
+//then add multer and go through aws s3 sdk
 const GetSearchResults = async (req, res) => {
   try {
     const { error } = validateQuery(req.query);
@@ -255,9 +198,9 @@ const GetSearchResults = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
-  AddNewSchool,
-  DeleteSchool,
   AddFavorite,
   DeleteFavorite,
   GetFavorite,

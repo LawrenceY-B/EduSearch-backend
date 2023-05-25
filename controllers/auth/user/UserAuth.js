@@ -1,5 +1,5 @@
-const User = require("../models/user");
-const Fpass = require("../models/forgotpass");
+const User = require("../../../models/user");
+const Fpass = require("../../../models/forgotpass");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 const bcrypt = require("bcrypt");
@@ -12,7 +12,7 @@ const {
   sendSMS,
   validatePassword,
   validatePhoneNumber,
-} = require("../services/auth.service");
+} = require("../../../services/auth.service");
 const jwt = require("jsonwebtoken");
 //Creating a new user
 const AddNewUser = async (req, res) => {
