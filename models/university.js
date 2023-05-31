@@ -1,39 +1,37 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const contactInfoSchema = new Schema({
-  address: String,
-  phone: String,
-  email: String,
+const universitySchema = new Schema({
+  university_id: { type: mongoose.Schema.Types.ObjectId },
+  name: { type: String, required: true },
+  location: { type: String, required: true },
+  website: { type: String, required: true },
+  address: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true },
+  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Schools" }],
 });
 
 const courseSchema = new Schema({
-  course_id: Number,
-  name: String,
-  description: String,
-  prerequisites: String,
-  cut_off_points: String,
-  fee_paying: Boolean,
-  application_fee: String,
-  admission_costs: String,
-  other_info: String,
-  course_description: String,
-  skills: [String],
-  career_paths: [String],
+  course_id: {type: mongoose.Schema.Types.ObjectId},
+  name: {type:String, required: true},
+  description: {type: String, required:true},
+  prerequisites: {type: String, required:true},
+  cut_off_points: {type: String, required:true},
+  fee_paying: {type:Boolean, required:true},
+  application_fee: {type: String, required:true},
+  admission_costs: {type: String, required:true},
+  other_info: {type: String, required:true},
+  course_description: {type: String, required:true},
+  skills: [{type:mongoose.Schema.Types.ObjectId, ref:"Skills"}],
+  career_paths: [{type:mongoose.Schema.Types.ObjectId, ref:"Careers"}],
 });
 
-const universitySchema = new Schema({
-  university_id: Number,
-  name: String,
-  location: String,
-  website: String,
-  contact_info: contactInfoSchema,
-  courses: [courseSchema],
-});
+const skillSchema = new Schema({
 
+})
+const Uni = mongoose.model("University", universitySchema);
+const coursemodel = mongoose.model("Course", courseSchema);
 
-
-const Uni = mongoose.model('University', universitySchema);
-
-module.exports = Uni;
+module.exports = {Uni, coursemodel};
