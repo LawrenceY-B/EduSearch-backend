@@ -55,8 +55,8 @@ const generateOTP = async (phone) => {
 
 const validateUser = (person) => {
   const schema = Joi.object({
-    FirstName: Joi.string().required().min(3),
-    LastName: Joi.string().required().min(3),
+    
+    Name: Joi.string().required().min(3),
     Password: Joi.string().required().min(6),
     Phonenumber: Joi.string().required().max(10).min(10).allow(""),
     Email: Joi.string()

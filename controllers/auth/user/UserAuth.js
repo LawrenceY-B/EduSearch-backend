@@ -17,6 +17,7 @@ const jwt = require("jsonwebtoken");
 //Creating a new user
 const AddNewUser = async (req, res) => {
   try {
+    console.log(req.body)
     const { error } = validateUser(req.body);
     if (error)
       return res
@@ -34,8 +35,8 @@ const AddNewUser = async (req, res) => {
         .status(403)
         .json({ success: false, message: "Phone already in use" });
     const result = await User.create({
-      FirstName: req.body.FirstName,
-      LastName: req.body.LastName,
+      
+      Name: req.body.Name,
       Password: password,
       Phonenumber: phone,
       Email: Email,

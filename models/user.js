@@ -1,10 +1,8 @@
-const { object } = require('joi');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
-  FirstName: { type: String },
-  LastName: { type: String },
+  Name: { type: String },
   Password: { type: String },
   Phonenumber: { type: Number },
   Email: { type: String },
