@@ -22,7 +22,7 @@ const AdminAddNewUser = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
-    let { name, email, password, phone } = req.body;
+    let { name, email, password, phone,role } = req.body;
     password = await bcrypt.hash(password, 8);
     phone = phone.replace(phone.slice(0, 1), "233");
     const user = await Admin.find({ phone: phone });
@@ -37,6 +37,7 @@ const AdminAddNewUser = async (req, res) => {
       password: password,
       phone: phone,
       isVerified: false,
+      role: role,
     });
 
     //generate otp
@@ -95,7 +96,7 @@ const Adminlogin = async (req, res) => {
       }
       if (outcome) {
         const token = jwt.sign(
-          { AdminEmail: user.email, AdminId: user._id },
+          { AdminEmail: user.email, AdminId: user._id, AdminRole: user.role },
           `${tokenkey}`,
           {
             expiresIn: "4h",
@@ -135,20 +136,21 @@ const AdminverifyNumber = async (req, res) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
 
-    const {phone, otp}= req.body;
+    const {Phonenumber, otp}= req.body;
     //work on this area tonight
-    let Phonenumber = phone.replace(
-      phone.slice(0, 1),
+    const Phone = Phonenumber.replace(
+      Phonenumber.slice(0, 1),
       "233"
     );
    
     //check if user exists
-    const result = await Admin.findOne({ phone: Phonenumber });
+    const result = await Admin.findOne({ phone: Phone });
     if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
+    
     //check otp status
-    const verify = await verifyOTP(Phonenumber, otp);
+    const verify = await verifyOTP(Phone, otp);
     if (verify === "wrong")
       return res.status(400).json({
         success: false,
@@ -358,3 +360,4 @@ module.exports = {
   AdminresetPassword,
   Adminverifyreset,
 };
+//code for uploading images using multer to an aws s3 bucket

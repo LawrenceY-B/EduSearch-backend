@@ -15,8 +15,23 @@ const validateuni = (universityDetails) => {
       .allow(""),
     location: Joi.string().min(3).required(),
     website: Joi.string().min(3).uri().required(),
-    address: Joi.number().min(3).required(),
+    address: Joi.string().min(3).required(),
   });
-  return schema.validate(person);
+  return schema.validate(universityDetails);
 };
- module.exports = {validateuni}
+const validatecourses = (courseDetaiils) => {
+const schema = Joi.object({
+  name: Joi.string().min(3).required(),
+  description: Joi.string().min(3).required(),
+  prerequisites: Joi.string().min(3).required(),
+  cut_off_points: Joi.number().min(6).required(),
+  fee_paying: Joi.boolean().required(),
+  application_fee: Joi.string().min(3).required(),
+  admission_costs: Joi.string().min(3).required(),
+  other_info: Joi.string().min(3).required(),
+  course_description: Joi.string().min(3).required(),
+ 
+})
+return schema.validate(courseDetaiils)
+}
+ module.exports = {validateuni, validatecourses}

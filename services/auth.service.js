@@ -32,7 +32,7 @@ const sendSMS = (to, text) => {
 
 const generateOTP = async (phone) => {
   try {
-    const otplength = 6
+    const otplength = 6;
     let gen = otpGenerator.generate(otplength, {
       digits: true,
       lowerCaseAlphabets: false,
@@ -55,7 +55,6 @@ const generateOTP = async (phone) => {
 
 const validateUser = (person) => {
   const schema = Joi.object({
-    
     Name: Joi.string().required().min(3),
     Password: Joi.string().required().min(6),
     Phonenumber: Joi.string().required().max(10).min(10).allow(""),
@@ -76,7 +75,9 @@ const validateAdmin = (person) => {
       .required()
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org"] } })
       .allow(""),
+    role: Joi.string().required().min(3),
   });
+
   return schema.validate(person);
 };
 
@@ -127,19 +128,19 @@ const verifyOTP = async (phone, otp) => {
 
 /**
  * validute use phone number
- * @param {*} pass 
- * @returns 
+ * @param {*} pass
+ * @returns
  */
-const validatePhoneNumber = (phone)=>{
+const validatePhoneNumber = (phone) => {
   const schema = Joi.object({
     Phonenumber: Joi.string().required().max(10).min(10).allow(""),
-  })
+  });
   return schema.validate(phone);
-}
+};
 const validatePassword = (pass) => {
   const schema = Joi.object({
     NewPassword: Joi.string().required().min(6),
-    ConfirmNewPassword: Joi.ref('NewPassword'),
+    ConfirmNewPassword: Joi.ref("NewPassword"),
   });
   return schema.validate(pass);
 };
@@ -153,5 +154,5 @@ module.exports = {
   validatePassword,
   validatePhoneNumber,
   validateAdmin,
-  validateAdminLogin
+  validateAdminLogin,
 };

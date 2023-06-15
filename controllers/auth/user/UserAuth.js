@@ -17,7 +17,6 @@ const jwt = require("jsonwebtoken");
 //Creating a new user
 const AddNewUser = async (req, res) => {
   try {
-    console.log(req.body)
     const { error } = validateUser(req.body);
     if (error)
       return res
@@ -99,7 +98,7 @@ const login = async (req, res) => {
       if (outcome) {
         /**Add new token**/
         const token = jwt.sign(
-          { userEmail: user.Email, userId: user._id },
+          { userEmail: user.Email, userId: user._id, },
           `${tokenkey}`,
           {
             expiresIn: "4h",

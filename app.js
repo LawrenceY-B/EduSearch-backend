@@ -4,6 +4,7 @@ app.use(express.json());
 const port = 3003;
 const Authroutes = require("./routes/auth.routes");
 const Schoolroutes = require("./routes/sch.routes");
+const Universityroutes = require("./routes/uni.routes");
 //mongodb database
 require("./database/db");
 
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
 //routes
 app.use("/api", Authroutes);
 app.use("/api/school", Schoolroutes);
+app.use("/api/university", Universityroutes);
 
 //error handler
 app.all("*", (req, res) => {

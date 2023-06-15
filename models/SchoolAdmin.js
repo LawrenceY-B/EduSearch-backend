@@ -9,7 +9,7 @@ const AdminSchema = new Schema({
   phone:{ type:String, required: true},
   SchoolData: [{ type: mongoose.Schema.Types.ObjectId, ref: "Schools" }],
   isVerified:{type:Boolean},
-  token:{type:String}
+  role:{type:String, required: true},
 });
 
 const SchoolAdmin = mongoose.model("SchoolAdmin", AdminSchema);

@@ -1,6 +1,7 @@
 const express = require("express");
+const { Addnewuniversity } = require("../controllers/UniController");
 
 const router = express.Router();
 
-// router.get("/transfer", available);
-// module.exports = router;
+router.post("/user/addnewuniversity", Addnewuniversity);
+module.exports = router;
