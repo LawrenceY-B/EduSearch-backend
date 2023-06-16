@@ -40,13 +40,16 @@ const generateOTP = async (phone) => {
       specialChars: false,
     });
     const otp = await bcrypt.hash(gen, 8);
+    let Number = {
+      number: phone,
+    };
+    let onetimepass = { otp: otp };
+    const existingOTP = await OTP.findOneAndUpdate(Number, onetimepass, {
+      upsert: true,
+      new: true,
+    });
+    console.log("num" + gen + "otp" + existingOTP);
 
-    const existingOTP = await OTP.findOne({ number: phone });
-    if (existingOTP) {
-      await OTP.updateOne({ otp: otp }, { number: phone });
-    } else {
-      await OTP.create({ number: phone, otp: otp });
-    }
     return gen;
   } catch (error) {
     return error;
@@ -111,17 +114,17 @@ const validateOTP = (person) => {
  */
 const verifyOTP = async (phone, otp) => {
   try {
-    const otpHolder = await OTP.findOne({
-      number: phone,
-    });
+    const otpHolder = await OTP.findOne().where("number").equals(phone);
     if (!otpHolder) {
       return "expired";
     }
-    if (await bcrypt.compare(otp, otpHolder.otp)) {
+    const verify = await bcrypt.compare(otp, otpHolder.otp);
+    if (verify) {
       return "valid";
     }
     return "wrong";
   } catch (error) {
+    console.log(error.message);
     throw error;
   }
 };

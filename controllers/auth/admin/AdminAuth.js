@@ -1,5 +1,4 @@
 const Admin = require("../../../models/SchoolAdmin");
-const Forgotpassword = require("../../../models/forgotpass");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 const bcrypt = require("bcrypt");
@@ -282,7 +281,6 @@ const AdminforgotPassword = async (req, res) => {
     } else {
       const text = `Enter this code ${OTP} to reset password`;
       // sendSMS(phone,text)
-      await Forgotpassword.create({ number: phone, otp: hashedOTP });
       return res
         .status(202)
         .json({ success: true, message: `Enter your ${OTP} in the stage` });

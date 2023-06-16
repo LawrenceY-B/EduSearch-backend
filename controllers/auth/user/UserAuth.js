@@ -1,5 +1,4 @@
 const User = require("../../../models/user");
-const Fpass = require("../../../models/forgotpass");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 const bcrypt = require("bcrypt");
@@ -153,6 +152,7 @@ const verifyNumber = async (req, res) => {
     }
     //check otp status
     const verify = await verifyOTP(phone, otp);
+    console.log(verify);
     if (verify === "wrong")
       return res.status(400).json({
         success: false,
@@ -196,7 +196,7 @@ const resendOTP = async (req, res) => {
     const Otp = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
     // sendSMS(phone, text);
-    return res.status(201).json({ success: true, otp: Otp });
+    return res.status(201).json({ success: true, message:"A new OTP has been sent to your number",otp: Otp });
   } catch (error) {
     console.log(error);
     return res
@@ -282,7 +282,6 @@ const forgotPassword = async (req, res) => {
     } else {
       const text = `Enter this code ${OTP} to reset password`;
       // sendSMS(phone,text)
-      await Fpass.create({ number: phone, otp: hashedOTP });
       return res
         .status(202)
         .json({ success: true, message: `Enter your ${OTP} in the stage` });
@@ -311,12 +310,13 @@ const verifyreset = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Missing arguments" });
     //check if user exists
-    const result = await User.find({ Phonenumber: phone });
-    if (result < 1) {
+    const result = await User.findOne({ Phonenumber: phone });
+    if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
     //check otp status
     const verify = await verifyOTP(phone, otp);
+    
     if (verify === "wrong")
       return res.status(400).json({
         success: false,
