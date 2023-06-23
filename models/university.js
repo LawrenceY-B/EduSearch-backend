@@ -10,7 +10,7 @@ const universitySchema = new Schema({
   address: { type: String, required: true },
   phone: { type: String, required: true },
   email: { type: String, required: true },
-  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Schools" }],
+  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
 });
 
 const courseSchema = new Schema({
@@ -24,6 +24,7 @@ const courseSchema = new Schema({
   admission_costs: {type: String, required:true},
   other_info: {type: String, required:true},
   course_description: {type: String, required:true},
+  university: {type:mongoose.Schema.Types.ObjectId, ref:"University"},
   skills: [{type:mongoose.Schema.Types.ObjectId, ref:"Skills"}],
   career_paths: [{type:mongoose.Schema.Types.ObjectId, ref:"Careers"}],
 });

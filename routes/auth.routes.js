@@ -18,9 +18,19 @@ const {
   AdminresendOTP,
   AdminresetPassword,
   Adminverifyreset,
-} = require("../controllers/auth/admin/AdminAuth");
+} = require("../controllers/auth/admin/SchAdminAuth");
 
-const { verifyToken, verifyResetToken } = require("../middleware/isAuth");
+const{
+UniAdminAddNewUser,
+UniAdminlogin,
+UniAdminlogout,
+UniAdminforgotPassword,
+UniAdminverifyNumber,
+UniAdminresendOTP,
+UniAdminresetPassword,
+UniAdminverifyreset,
+}=require("../controllers/auth/admin/UniAdminAuth")
+const { verifyToken, verifyResetToken, verifySchAdmin,verifyUniAdmin } = require("../middleware/isAuth");
 const router = express.Router();
 //user Authentication
 router.post("/signup", AddNewUser);
@@ -32,14 +42,22 @@ router.post("/forgotpass", forgotPassword);
 router.post("/verifyresetotp", verifyreset);
 router.post("/resetpass", verifyResetToken, resetPassword);
 
-//Admin Authentication
-router.post("/admin/signup", AdminAddNewUser);
-router.post("/admin/login", Adminlogin);
-router.post("/admin/verifynumber", AdminverifyNumber);
-router.post("/admin/resendotp", resendOTP);
-router.get("/admin/logout", verifyToken, logout);
-router.post("/admin/forgotpass", forgotPassword);
-router.post("/admin/verifyresetotp", verifyreset);
-router.post("/admin/resetpass", verifyResetToken, resetPassword);
-
+// School Admin Authentication
+router.post("/Schooladmin/signup", AdminAddNewUser);
+router.post("/Schooladmin/login", Adminlogin);
+router.post("/Schooladmin/verifynumber", AdminverifyNumber);
+router.post("/Schooladmin/resendotp", AdminresendOTP);
+router.get("/Schooladmin/logout", verifySchAdmin, Adminlogout);
+router.post("/Schooladmin/forgotpass", AdminforgotPassword);
+router.post("/Schooladmin/verifyresetotp", Adminverifyreset);
+router.post("/Schooladmin/resetpass", verifyResetToken, AdminresetPassword);
+// University Admin Authentication
+router.post("/Uniadmin/signup", UniAdminAddNewUser);
+router.post("/Uniadmin/login", UniAdminlogin);
+router.post("/Uniadmin/verifynumber", UniAdminverifyNumber);
+router.post("/Uniadmin/resendotp", UniAdminresendOTP);
+router.get("/Uniadmin/logout", verifyUniAdmin, UniAdminlogout);
+router.post("/Uniadmin/forgotpass", UniAdminforgotPassword);
+router.post("/Uniadmin/verifyresetotp", UniAdminverifyreset);
+router.post("/Uniadmin/resetpass", verifyResetToken, UniAdminresetPassword);
 module.exports = router;

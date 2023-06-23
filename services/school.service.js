@@ -31,7 +31,7 @@ const validateFav = (school) => {
   return schema.validate(school);
 };
 const extractMail = (req, res) => {
-  const fullheader = req.get("Authorization");
+  const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
   const token = fullheader ? fullheader.split(" ")[1] : null;
   if (!token) {
     return res.status(401).json("Unauthorized");

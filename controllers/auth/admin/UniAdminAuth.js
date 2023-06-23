@@ -1,4 +1,4 @@
-const Admin = require("../../../models/SchoolAdmin");
+const Admin = require("../../../models/UniversityAdmin");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
 const bcrypt = require("bcrypt");
@@ -13,19 +13,26 @@ const {
   validatePhoneNumber,
 } = require("../../../services/auth.service");
 const jwt = require("jsonwebtoken");
+const { extractMail } = require("../../../services/school.service");
 //Creating a new user
-const AdminAddNewUser = async (req, res) => {
+const UniAdminAddNewUser = async (req, res) => {
   try {
     const { error } = validateAdmin(req.body);
     if (error)
       return res
         .status(400)
         .json({ success: false, message: error.details[0].message });
-    let { name, email, password, phone,role } = req.body;
+    let { name, email, password, phone, role } = req.body;
     password = await bcrypt.hash(password, 8);
     phone = phone.replace(phone.slice(0, 1), "233");
+    if (role !== "UniversityAdmin") {
+      return res.status(400).json({
+        success: false,
+        message: "You are not authorized to create this account",
+      });
+    }
     const user = await Admin.find({ phone: phone });
-    if (user.length===1)
+    if (user.length === 1)
       return res
         .status(403)
         .json({ success: false, message: "Phone already in use" });
@@ -56,7 +63,7 @@ const AdminAddNewUser = async (req, res) => {
       .status(400)
       .json({ success: false, message: "Couldn't add user details" });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res
       .status(400)
       .json({ success: false, message: "Something went wrong" });
@@ -64,7 +71,7 @@ const AdminAddNewUser = async (req, res) => {
 };
 // work on login and other functions
 
-const Adminlogin = async (req, res) => {
+const UniAdminlogin = async (req, res) => {
   try {
     const { error } = validateAdminLogin(req.body);
     if (error) {
@@ -72,11 +79,8 @@ const Adminlogin = async (req, res) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
     }
-    const {phone,password}= req.body
-    let Phonenumber = phone.replace(
-      phone.slice(0, 1),
-      "233"
-    );
+    const { phone, password } = req.body;
+    let Phonenumber = phone.replace(phone.slice(0, 1), "233");
     const user = await Admin.findOne({ phone: Phonenumber });
     if (!user) {
       return res
@@ -90,7 +94,7 @@ const Adminlogin = async (req, res) => {
     }
     bcrypt.compare(password, user.password, (error, outcome) => {
       if (error) {
-        console.error(error);
+        // console.error(error);
         return res.status(500).json({ message: "An error occurred" });
       }
       if (outcome) {
@@ -119,7 +123,7 @@ const Adminlogin = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res
       .status(400)
       .json({ success: false, message: "Something went wrong" });
@@ -127,7 +131,7 @@ const Adminlogin = async (req, res) => {
 };
 //TO_DO change phone number to email
 //test and see if changes the value on the db
-const AdminverifyNumber = async (req, res) => {
+const UniAdminverifyNumber = async (req, res) => {
   try {
     const { error } = validateOTP(req.body);
     if (error)
@@ -135,19 +139,16 @@ const AdminverifyNumber = async (req, res) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
 
-    const {Phonenumber, otp}= req.body;
+    const { Phonenumber, otp } = req.body;
     //work on this area tonight
-    const Phone = Phonenumber.replace(
-      Phonenumber.slice(0, 1),
-      "233"
-    );
-   
+    const Phone = Phonenumber.replace(Phonenumber.slice(0, 1), "233");
+
     //check if user exists
     const result = await Admin.findOne({ phone: Phone });
     if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
-    
+
     //check otp status
     const verify = await verifyOTP(Phone, otp);
     if (verify === "wrong")
@@ -174,14 +175,14 @@ const AdminverifyNumber = async (req, res) => {
       message: "You used the wrong OTP. Check and try again/error",
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Sorry, something went wrong" });
   }
 };
 //resend otp
-const AdminresendOTP = async (req, res) => {
+const UniAdminresendOTP = async (req, res) => {
   try {
     let phone = req.body.Phonenumber;
     if (!phone)
@@ -195,14 +196,14 @@ const AdminresendOTP = async (req, res) => {
     // sendSMS(phone, text);
     return res.status(201).json({ success: true, otp: Otp });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Sorry, something went wrong" });
   }
 };
 //logout
-const Adminlogout = async (req, res) => {
+const UniAdminlogout = async (req, res) => {
   try {
     const fullheader = req.headers.authorization;
     const token = fullheader.split(" ")[1];
@@ -231,25 +232,21 @@ const Adminlogout = async (req, res) => {
   }
 };
 //reset password
-const AdminresetPassword = async (req, res) => {
+const UniAdminresetPassword = async (req, res) => {
   try {
     const password = req.body;
     const { error } = await validatePassword(password);
     if (error) return res.status(400).json({ message: error.message });
 
-    const UserMail = req.get("UserMail");
-    if (!UserMail) {
-      res.status(401).json({ message: "Not authorized" });
-    }
-
-    const updatePass = await Admin.findOne({ Email: UserMail });
-    if (!updatePass) {
+   const AdminDetail = extractMail(req,res)
+   const UserMail = AdminDetail.AdminEmail
+    const existinguser = await Admin.findOne({ email: UserMail });
+    if (!existinguser) {
       res.status(401).json({ message: "Couldn't find user" });
     } else {
       const HashedPassword = await bcrypt.hash(password.NewPassword, 8);
-
-      const Mail = { Email: UserMail };
-      const update = { Password: HashedPassword };
+      const Mail = { email: UserMail };
+      const update = { password: HashedPassword };
       let updatePass = await Admin.findOneAndUpdate(Mail, update, {
         new: true,
       });
@@ -257,7 +254,7 @@ const AdminresetPassword = async (req, res) => {
         res.status(401).json({ message: "something went wrong" });
       } else {
         res.status(201).json({ message: "Passwords updated successfully" });
-        console.log(updatePass);
+        // console.log(updatePass);
       }
     }
   } catch (error) {
@@ -265,15 +262,19 @@ const AdminresetPassword = async (req, res) => {
   }
 };
 //work on forgot password logic
-const AdminforgotPassword = async (req, res) => {
+const UniAdminforgotPassword = async (req, res) => {
   try {
     let phone = req.body;
+    // console.log(phone);
     const { error } = validatePhoneNumber(phone);
     if (error) return res.status(400).json({ message: error.message });
-    phone = phone.Phonenumber.replace(req.body.Phonenumber.slice(0, 1), "233");
+    phone = req.body.Phonenumber.replace(
+      req.body.Phonenumber.slice(0, 1),
+      "233"
+    );
     const OTP = await generateOTP(phone);
-    const hashedOTP = await bcrypt.hash(OTP, 8);
-    const result = await Admin.findOne({ Phonenumber: phone });
+    // const hashedOTP = await bcrypt.hash(OTP, 8);
+    const result = await Admin.findOne({ phone: phone });
     if (!result) {
       return res
         .status(400)
@@ -286,12 +287,10 @@ const AdminforgotPassword = async (req, res) => {
         .json({ success: true, message: `Enter your ${OTP} in the stage` });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: `We're working on this` });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
-const Adminverifyreset = async (req, res) => {
+const UniAdminverifyreset = async (req, res) => {
   try {
     const { error } = validateOTP(req.body);
     if (error)
@@ -309,8 +308,8 @@ const Adminverifyreset = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Missing arguments" });
     //check if user exists
-    const result = await Admin.find({ Phonenumber: phone });
-    if (result < 1) {
+    const result = await Admin.findOne({ phone: phone });
+    if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
     //check otp status
@@ -326,14 +325,15 @@ const Adminverifyreset = async (req, res) => {
         message: "You used an expired OTP. Please generate a new one",
       });
     else if (verify === "valid") {
-      const token = jwt.sign({ userEmail: result.Email }, `${tokenkey}`, {
+      const token = jwt.sign({ AdminEmail: result.email }, `${tokenkey}`, {
         expiresIn: 900,
       });
+      console.log(result.email);
       return res.status(200).json({
         success: true,
         token: token,
         message: "The number has been succesfully verified",
-        userEmail: result.Email,
+        // userEmail: result.mail,
       });
     }
     return res.status(400).json({
@@ -341,7 +341,7 @@ const Adminverifyreset = async (req, res) => {
       message: "You used the wrong OTP. Check and try again/error",
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return res
       .status(500)
       .json({ success: false, message: "Sorry, something went wrong" });
@@ -349,13 +349,13 @@ const Adminverifyreset = async (req, res) => {
 };
 
 module.exports = {
-  AdminAddNewUser,
-  Adminlogin,
-  Adminlogout,
-  AdminforgotPassword,
-  AdminverifyNumber,
-  AdminresendOTP,
-  AdminresetPassword,
-  Adminverifyreset,
+  UniAdminAddNewUser,
+  UniAdminlogin,
+  UniAdminlogout,
+  UniAdminforgotPassword,
+  UniAdminverifyNumber,
+  UniAdminresendOTP,
+  UniAdminresetPassword,
+  UniAdminverifyreset,
 };
 //code for uploading images using multer to an aws s3 bucket

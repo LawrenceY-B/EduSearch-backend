@@ -48,7 +48,7 @@ const generateOTP = async (phone) => {
       upsert: true,
       new: true,
     });
-    console.log("num" + gen + "otp" + existingOTP);
+    // console.log("num" + gen + "otp" + existingOTP);
 
     return gen;
   } catch (error) {
@@ -124,7 +124,7 @@ const verifyOTP = async (phone, otp) => {
     }
     return "wrong";
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
     throw error;
   }
 };

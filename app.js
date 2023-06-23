@@ -5,13 +5,15 @@ const port = 3003;
 const Authroutes = require("./routes/auth.routes");
 const Schoolroutes = require("./routes/sch.routes");
 const Universityroutes = require("./routes/uni.routes");
+const cors = require("cors");
 //mongodb database
 require("./database/db");
+app.use(cors())
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods",'POST, GET, PUT, DELETE, PATCH');
-  res.setHeader("Access-Control-Allow-Headers","Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers","Content-Type, Authorization, Reset-Authorization");
   next()
 });
 //routes
