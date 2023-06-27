@@ -140,10 +140,6 @@ const GetAllCourses = async (req, res) => {
       name: Universityname,
     }).populate({
       path: "Programs",
-      // populate: {
-      //   path: "courses",
-      //   options: { strictPopulate: false },
-      // },
     });
 
     if (!Universitycourses) {
@@ -154,6 +150,16 @@ const GetAllCourses = async (req, res) => {
       res.status(201).json({ success: true, courses: Universitycourses });
     }
   } catch (error) {
+    res.status(501).json({ success: false, message: error.message });
+  }
+};
+const searchCourses = async (req, res) => {
+  try { 
+    const{course,aggregate,skills}=req.body
+    const { error } = validatecoursesearch(req.body);
+
+    }
+   catch (error) {
     res.status(501).json({ success: false, message: error.message });
   }
 };

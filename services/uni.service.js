@@ -13,7 +13,14 @@ const validateuni = (universityDetails) => {
   });
   return schema.validate(universityDetails);
 };
-
+const valiidatesearchcourse = (courseDetails) => {
+  const schema = Joi.object({
+    course: Joi.string().min(3).required(),
+    aggregate: Joi.number().min(6).required(),
+    skill: Joi.string().min(3).required(),
+  });
+  return schema.validate(courseDetails);
+};
 const validatecourses = (courseDetaiils) => {
   const schema = Joi.object({
     name: Joi.string().min(3).required(),
@@ -44,7 +51,6 @@ const extractId = (req, res) => {
     return decoded;
   } catch (error) {
     throw new Error(error);
-    
   }
 };
 const populateCourses = async (result) => {
@@ -52,4 +58,10 @@ const populateCourses = async (result) => {
   result.courses = courses;
   return result;
 };
-module.exports = { validateuni, validatecourses, extractId, populateCourses };
+module.exports = {
+  validateuni,
+  validatecourses,
+  extractId,
+  populateCourses,
+  valiidatesearchcourse,
+};
