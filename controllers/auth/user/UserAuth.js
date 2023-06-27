@@ -1,6 +1,7 @@
 const User = require("../../../models/user");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
+const {extractResetMail} = require("../../../services/school.service");
 const bcrypt = require("bcrypt");
 const {
   validateUser,
@@ -240,10 +241,8 @@ const resetPassword = async (req, res) => {
     const { error } = await validatePassword(password);
     if (error) return res.status(400).json({ message: error.message });
 
-    const UserMail = req.get("UserMail");
-    if (!UserMail) {
-      res.status(401).json({ message: "Not authorized" });
-    }
+  const Userdetail = extractResetMail(req,res)
+   const UserMail = Userdetail.userEmail
 
     const updatePass = await User.findOne({ Email: UserMail });
     if (!updatePass) {

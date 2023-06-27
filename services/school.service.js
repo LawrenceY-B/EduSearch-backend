@@ -31,18 +31,33 @@ const validateFav = (school) => {
   return schema.validate(school);
 };
 const extractMail = (req, res) => {
-  const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
+const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
+  console.log(fullheader);
   const token = fullheader ? fullheader.split(" ")[1] : null;
   if (!token) {
-    return res.status(401).json("Unauthorized");
+   throw new Error("Unauthorized");
   }
   try {
     const decoded = jwt.decode(token, `${tokenkey}`);
     return decoded;
   } catch (error) {
-    return res.status(401).json("Unauthorized");
+    throw new Error("Arggh");
   }
 };
+const extractResetMail = (req, res) => {
+  const fullheader = req.header("Reset-Authorization");
+    console.log(fullheader);
+    const token = fullheader ? fullheader.split(" ")[1] : null;
+    if (!token) {
+     throw new Error("Unauthorized");
+    }
+    try {
+      const decoded = jwt.decode(token, `${tokenkey}`);
+      return decoded;
+    } catch (error) {
+      throw new Error("Arggh");
+    }
+  };
 const validateQuery = (query) => {
   const schema = Joi.object({
     curriculum: Joi.string().required().min(3),
@@ -62,4 +77,5 @@ module.exports = {
   validateFav,
   extractMail,
   validateQuery,
+  extractResetMail
 };

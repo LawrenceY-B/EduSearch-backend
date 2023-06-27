@@ -46,7 +46,6 @@ const verifyResetToken = async (req, res, next) => {
       return res.status(401).json({ message: "Token expired" });
     }
     res.status(400).json({ message: "something went wrong" });
-    console.log(error);
   }
 };
 const verifySchAdmin = async (req, res, next) => {
@@ -57,7 +56,6 @@ const verifySchAdmin = async (req, res, next) => {
     }
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-    // console.log(decoded);
     if (decoded.AdminRole !== "SchoolAdmin") {
       return res.status(401).json({
         success: false,
