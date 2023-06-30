@@ -81,7 +81,8 @@ const GetFavorite = async (req, res) => {
         path: "School",
         options: { strictPopulate: false },
       },
-    });
+    })
+    .select('-Password -Email -Phonenumber');
 
     if (!userfavorites) {
       res

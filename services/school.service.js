@@ -32,7 +32,6 @@ const validateFav = (school) => {
 };
 const extractMail = (req, res) => {
 const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
-  console.log(fullheader);
   const token = fullheader ? fullheader.split(" ")[1] : null;
   if (!token) {
    throw new Error("Unauthorized");

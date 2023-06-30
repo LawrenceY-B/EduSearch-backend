@@ -18,6 +18,7 @@ const validatesearchcourse = (courseDetails) => {
     course: Joi.string().min(3).required(),
     aggregate: Joi.number().min(6).required(),
     skills: Joi.array().items(Joi.string()),
+    feepaying: Joi.boolean().required(),
   });
   return schema.validate(courseDetails);
 };

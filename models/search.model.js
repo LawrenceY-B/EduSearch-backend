@@ -3,7 +3,8 @@ const { Schema } = mongoose;
 
 const searchSchema = new Schema({
   search_id: { type: mongoose.Schema.Types.ObjectId },
-  CourseData: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
+//   CourseData: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
+
   UserData: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
