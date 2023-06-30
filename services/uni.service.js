@@ -13,11 +13,11 @@ const validateuni = (universityDetails) => {
   });
   return schema.validate(universityDetails);
 };
-const valiidatesearchcourse = (courseDetails) => {
+const validatesearchcourse = (courseDetails) => {
   const schema = Joi.object({
     course: Joi.string().min(3).required(),
     aggregate: Joi.number().min(6).required(),
-    skill: Joi.string().min(3).required(),
+    skills: Joi.array().items(Joi.string()),
   });
   return schema.validate(courseDetails);
 };
@@ -26,12 +26,16 @@ const validatecourses = (courseDetaiils) => {
     name: Joi.string().min(3).required(),
     description: Joi.string().min(3).required(),
     prerequisites: Joi.string().min(3).required(),
+    prerequisitePrograms: Joi.array().items(Joi.string().min(3).required()),
     cut_off_points: Joi.number().min(6).required(),
     fee_paying: Joi.boolean().required(),
+    fee_paying_cut_off_points: Joi.number().min(6),
     application_fee: Joi.string().min(3).required(),
     admission_costs: Joi.string().min(3).required(),
     other_info: Joi.string().min(3).required(),
     course_description: Joi.string().min(3).required(),
+    skills: Joi.array().items(Joi.string().min(3).required()),
+    career_paths: Joi.array().items(Joi.string().min(3).required()),
   });
   return schema.validate(courseDetaiils);
 };
@@ -53,15 +57,10 @@ const extractId = (req, res) => {
     throw new Error(error);
   }
 };
-const populateCourses = async (result) => {
-  const courses = await coursemodel.find({ university: result._id });
-  result.courses = courses;
-  return result;
-};
+
 module.exports = {
   validateuni,
   validatecourses,
   extractId,
-  populateCourses,
-  valiidatesearchcourse,
+  validatesearchcourse,
 };

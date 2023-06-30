@@ -164,33 +164,31 @@ const GetSearchResults = async (req, res) => {
       rating,
       location,
     } = req.query;
-    const search = await sch
-      .find()
-      .where("Curriculum")
-      .equals(curriculum)
-      .where("Level")
-      .equals(level)
-      .where("Size")
-      .gte(minsize)
-      .lte(maxsize)
-      .where("Background")
-      .equals(background)
-      .where("Price")
-      .gte(minprice)
-      .lte(maxprice);
-
-    if (rating) {
-     await search.where("Rating").equals(rating);
-    }
-    if (location) {
-     await search.where("Location").equals(location);
-    }
+    const search = sch
+    .find({
+      "Curriculum": curriculum,
+      "Level": level,
+      "Size": { $gte: minsize, $lte: maxsize },
+      "Background": background,
+      "Price": { $gte: minprice, $lte: maxprice }
+    });
+  
+  if (rating) {
+    search.where("Rating").equals(rating);
+  }
+  
+  if (location) {
+    search.where("Location").equals(location);
+  }
+  
+      
+      const results = await search.exec();
 //read on pagination and skipcount
-    if (search.length === 0 ) {
+    if (results.length === 0 ) {
       res.status(404).json({ success: false, message: "No Search Found" });
     }
     else{
-      res.status(200).json({ success: true, mesages: search });
+      res.status(200).json({ success: true, mesages: results});
     }
     console.log(search.length);
   } catch (error) {

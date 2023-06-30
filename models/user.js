@@ -8,6 +8,8 @@ const UserSchema = new Schema({
   Email: { type: String },
   isVerified: { type: Boolean },
   FavoriteSchools: [ {type: mongoose.Schema.Types.ObjectId, ref: "Favorites",}],
+  SearchHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Search" }],
+
   
 });
 

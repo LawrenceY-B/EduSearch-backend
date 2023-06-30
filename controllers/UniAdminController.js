@@ -67,13 +67,17 @@ const Addcourses = async (req, res) => {
       course_id,
       name,
       description,
+      prerequisitePrograms,
       prerequisites,
       cut_off_points,
       fee_paying,
+      fee_paying_cut_off_points,
       application_fee,
       admission_costs,
       other_info,
       course_description,
+      skills,
+      career_paths,
     } = req.body;
     // 649505aefadf64e6b2f31cc2
     // let extracted = extractId(req, res);
@@ -102,12 +106,16 @@ const Addcourses = async (req, res) => {
       name,
       description,
       prerequisites,
+      prerequisitePrograms,
       cut_off_points,
       fee_paying,
+      fee_paying_cut_off_points,
       application_fee,
       admission_costs,
       other_info,
       course_description,
+      skills,
+      career_paths,
       universityName: Universityname,
       universityId: universityId,
     });
@@ -153,14 +161,6 @@ const GetAllCourses = async (req, res) => {
     res.status(501).json({ success: false, message: error.message });
   }
 };
-const searchCourses = async (req, res) => {
-  try { 
-    const{course,aggregate,skills}=req.body
-    const { error } = validatecoursesearch(req.body);
 
-    }
-   catch (error) {
-    res.status(501).json({ success: false, message: error.message });
-  }
-};
 module.exports = { Addnewuniversity, Addcourses, GetAllCourses };
+
