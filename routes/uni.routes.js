@@ -1,14 +1,13 @@
 const express = require("express");
 const { Addnewuniversity, Addcourses, GetAllCourses } = require("../controllers/UniAdminController");
-const { verifyUniAdmin } = require("../middleware/isAuth");
+const { verifyUniAdmin,verifyToken } = require("../middleware/isAuth");
 const { searchCourses } = require("../controllers/university.controller");
 
 
 const router = express.Router();
-
 router.post("/admin/addnewuniversity",verifyUniAdmin ,Addnewuniversity);
 router.post("/admin/addcourses",verifyUniAdmin ,Addcourses);
 router.get("/admin/getalluniversities",verifyUniAdmin ,GetAllCourses);
 
-router.get("/user/searchcourses",searchCourses);
+router.get("/user/searchcourses",verifyToken,searchCourses);
 module.exports = router;

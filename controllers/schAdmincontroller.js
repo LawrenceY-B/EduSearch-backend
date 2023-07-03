@@ -9,37 +9,36 @@ const AddNewSchool = async (req, res) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
     const {
-      name,
-      email,
-      phone,
-      curriculum,
-      level,
-      size,
-      background,
+      Name,
+      Email,
+      Phone,
+      Curriculum,
+      Level,
+      Size,
+      Background,
       ImgUrl,
-      price,
-      rating,
-      location,
+      Price,
+      Rating,
+      Location,
     } = req.body;
-    const Phonenumber = phone.replace(phone.slice(0, 1), "233");
-    const school = await sch.findOne({ Name: name });
+    const Phonenumber = Phone.replace(Phone.slice(0, 1), "233");
+    const school = await sch.findOne({ Name: Name });
     if (school)
       return res
         .status(403)
         .json({ success: false, message: "School already exists" });
     const result = sch.create({
-      Name: name,
-      Email: email,
-      Phone: Phonenumber,
-      Curriculum: curriculum,
-      Level: level,
-      Size: size,
-      Background: background,
-      ImgUrl: ImgUrl,
-      Price: price,
-      Rating: rating,
-      Location: location,
-      IsVerified: false,
+      Name,
+      Email,
+      Phone,
+      Curriculum,
+      Level,
+      Size,
+      Background,
+      ImgUrl,
+      Price,
+      Rating,
+      Location,
     });
     if (result) {
       return res

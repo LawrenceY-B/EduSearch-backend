@@ -167,10 +167,10 @@ const GetSearchResults = async (req, res) => {
     } = req.query;
     const search = sch
     .find({
-      "Curriculum": curriculum,
-      "Level": level,
+      "Curriculum": { $in: curriculum },
+      "Level": { $in: level },
       "Size": { $gte: minsize, $lte: maxsize },
-      "Background": background,
+      "Background": { $in: background },
       "Price": { $gte: minprice, $lte: maxprice }
     });
   

@@ -125,7 +125,7 @@ const Addcourses = async (req, res) => {
         .json({ succcess: false, message: "Couldn't add course" });
     }
 
-    // populate the school model with the courses
+    // push the school model with the courses
     const pushCourse = await Uni.findOne({ name: Universityname });
     pushCourse.Programs.push(result);
     await pushCourse.save();

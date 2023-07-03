@@ -4,21 +4,20 @@ const tokenkey = process.env.TOKEN_KEY;
 //Identify the cause of the error
 const validateSchool = (school) => {
   const schema = Joi.object({
-    name: Joi.string().min(6).required(),
-  
-    phone: Joi.string().max(10).min(10).allow("").required(),
-    email: Joi.string()
+    Name: Joi.string().min(6).required(),
+  Phone: Joi.string().max(10).min(10).allow("").required(),
+    Email: Joi.string()
     .email({
       minDomainSegments: 2,
       tlds: { allow: ["com", "net", "org"] },
     }).required().allow(""),
-    curriculum: Joi.string().min(3).required(),
-    level: Joi.string().min(3).required(),
-    size: Joi.number().min(3).required(),
-    background: Joi.string().min(3).required(),
-    price: Joi.number().min(550).required(),
-    rating: Joi.string().min(3).required(),
-    location: Joi.string().min(3).required(),
+    Curriculum: Joi.array().items(Joi.string().min(2)).required(),
+    Level: Joi.array().items(Joi.string().min(3)).required(),
+    Size: Joi.number().min(3).required(),
+    Background: Joi.array().items(Joi.string().min(3)).required(),
+    Price: Joi.number().min(550).required(),
+    Rating: Joi.string().min(3).required(),
+    Location: Joi.string().min(3).required(),
     ImgUrl: Joi.string().min(3).uri().required(),
   });
   return schema.validate(school);
