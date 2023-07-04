@@ -165,12 +165,17 @@ const GetSearchResults = async (req, res) => {
       rating,
       location,
     } = req.query;
+    
+const serializedcurriculum = JSON.parse(decodeURIComponent(curriculum));
+const serializedlevel = JSON.parse(decodeURIComponent(level));
+const serializedbackground = JSON.parse(decodeURIComponent(background));
+console.log(serializedcurriculum+" "+serializedlevel+" "+serializedbackground);
     const search = sch
     .find({
-      "Curriculum": { $in: curriculum },
-      "Level": { $in: level },
+      "Curriculum": { $in: serializedcurriculum},
+      "Level": { $in: serializedlevel },
       "Size": { $gte: minsize, $lte: maxsize },
-      "Background": { $in: background },
+      "Background": { $in: serializedbackground },
       "Price": { $gte: minprice, $lte: maxprice }
     });
   
@@ -186,12 +191,11 @@ const GetSearchResults = async (req, res) => {
       const results = await search.exec();
 //read on pagination and skipcount
     if (results.length === 0 ) {
-      res.status(404).json({ success: false, message: "No Search Found" });
+     throw new Error("No results found");
     }
     else{
-      res.status(200).json({ success: true, mesages: results});
+      res.status(200).json({ success: true, message: `Found ${results.length} results`, data: results});
     }
-    console.log(search.length);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

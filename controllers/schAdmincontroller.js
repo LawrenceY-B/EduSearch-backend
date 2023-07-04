@@ -30,7 +30,7 @@ const AddNewSchool = async (req, res) => {
     const result = sch.create({
       Name,
       Email,
-      Phone,
+      Phone:Phonenumber,
       Curriculum,
       Level,
       Size,

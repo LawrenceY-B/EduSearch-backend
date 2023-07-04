@@ -13,10 +13,10 @@ const validateSchool = (school) => {
     }).required().allow(""),
     Curriculum: Joi.array().items(Joi.string().min(2)).required(),
     Level: Joi.array().items(Joi.string().min(3)).required(),
-    Size: Joi.number().min(3).required(),
+    Size: Joi.number().min(1).required(),
     Background: Joi.array().items(Joi.string().min(3)).required(),
     Price: Joi.number().min(550).required(),
-    Rating: Joi.string().min(3).required(),
+    Rating: Joi.string().min(0).required(),
     Location: Joi.string().min(3).required(),
     ImgUrl: Joi.string().min(3).uri().required(),
   });
