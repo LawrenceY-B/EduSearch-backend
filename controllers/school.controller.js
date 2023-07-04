@@ -1,7 +1,7 @@
 const sch = require("../models/schoolModel");
 const Favorite = require("../models/fav.model");
 const User = require("../models/user");
-const aob= require("../models/aob.model");
+const aob = require("../models/aob.model");
 const {
   validateFav,
   extractMail,
@@ -25,7 +25,7 @@ const AddFavorite = async (req, res) => {
     const school = await sch.findOne(schoolname);
     //check if school exists
     if (!school) {
-      res.status(400).json({ mesages: "School not found" });
+      throw new Error("School not found");
     }
 
     let userData = extractMail(req, res);
@@ -34,17 +34,13 @@ const AddFavorite = async (req, res) => {
     //check if userexists
     const userDetails = await User.findOne({ _id: userID });
     if (!userDetails) {
-      res.status(401).json({ mesages: "User not found" });
+      throw new Error("User not found");
     }
 
     const existing = await Favorite.findOne({ UserData: userID })
       .where("School")
       .equals(school._id);
-    if (existing)
-      return res
-        .status(403)
-        .json({ success: false, message: "School is already in favorites" });
-
+    if (existing) throw new Error("School is already in favorites");
     let result = await Favorite.create({
       UserData: userDetails._id,
       School: school._id,
@@ -73,23 +69,22 @@ const GetFavorite = async (req, res) => {
     const userData = extractMail(req, res);
     let userEmail = userData.userEmail;
     if (!userEmail) {
-      res.status(401).json({ success: false, message: "Unauthorized" });
+      throw new Error("Unauthorized");
     }
-    let userfavorites = await User.findOne({ Email: userEmail }).populate({
-      path: "FavoriteSchools",
-      populate: {
-        path: "School",
-        options: { strictPopulate: false },
-      },
-    })
-    .select('-Password -Email -Phonenumber');
-
+    let userfavorites = await User.findOne({ Email: userEmail })
+      .populate({
+        path: "FavoriteSchools",
+        populate: {
+          path: "School",
+          options: { strictPopulate: false },
+        },
+      })
+      .select("-Password -Email -Phonenumber");
+console.log(userfavorites)
     if (!userfavorites) {
-      res
-        .status(404)
-        .json({ success: false, message: "Error while fetching favorites" });
+    throw new Error ("Error while getting favorites")
     } else {
-      res.status(201).json({ success: true, favorites: userfavorites });
+      res.status(201).json({ success: true, message:"Keep an eye on your favorite schools! 👀", favorites: userfavorites });
     }
   } catch (error) {
     res.status(500).json({
@@ -152,7 +147,7 @@ const GetSearchResults = async (req, res) => {
   try {
     const { error } = validateQuery(req.query);
     if (error) {
-      res.status(401).json({ message: error.message });
+      throw new Error(error.details[0].message);
     }
     const {
       curriculum,
@@ -165,43 +160,43 @@ const GetSearchResults = async (req, res) => {
       rating,
       location,
     } = req.query;
-    
-const serializedcurriculum = JSON.parse(decodeURIComponent(curriculum));
-const serializedlevel = JSON.parse(decodeURIComponent(level));
-const serializedbackground = JSON.parse(decodeURIComponent(background));
-console.log(serializedcurriculum+" "+serializedlevel+" "+serializedbackground);
-    const search = sch
-    .find({
-      "Curriculum": { $in: serializedcurriculum},
-      "Level": { $in: serializedlevel },
-      "Size": { $gte: minsize, $lte: maxsize },
-      "Background": { $in: serializedbackground },
-      "Price": { $gte: minprice, $lte: maxprice }
+
+    const serializedcurriculum = JSON.parse(decodeURIComponent(curriculum));
+    const serializedlevel = JSON.parse(decodeURIComponent(level));
+    const serializedbackground = JSON.parse(decodeURIComponent(background));
+    let minSize = parseInt(minsize);
+    // console.log(serializedcurriculum+" "+serializedlevel+" "+serializedbackground);
+    const search = sch.find({
+      Curriculum: { $in: serializedcurriculum },
+      Level: { $in: serializedlevel },
+      Size: { $gte: minSize, $lte: maxsize },
+      Background: { $in: serializedbackground },
+      Price: { $gte: minprice, $lte: maxprice },
     });
-  
-  if (rating) {
-    search.where("Rating").equals(rating);
-  }
-  
-  if (location) {
-    search.where("Location").equals(location);
-  }
-  
-      
-      const results = await search.exec();
-//read on pagination and skipcount
-    if (results.length === 0 ) {
-     throw new Error("No results found");
+
+    if (rating) {
+      search.where("Rating").equals(rating);
     }
-    else{
-      res.status(200).json({ success: true, message: `Found ${results.length} results`, data: results});
+
+    if (location) {
+      search.where("Location").equals(location);
+    }
+
+    const results = await search.exec();
+    //read on pagination and skipcount
+    if (results.length === 0) {
+      throw new Error("No results found");
+    } else {
+      res.status(200).json({
+        success: true,
+        message: `Found ${results.length} results`,
+        data: results,
+      });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-
 
 module.exports = {
   AddFavorite,

@@ -47,12 +47,12 @@ const AddNewUser = async (req, res) => {
     const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
 
     //send otp
-    sendSMS(phone, text)
+    // sendSMS(phone, text)
     //error handling
     if (result)
       return res.status(201).json({
         success: true,
-        message: "Account has been created",
+        message: `Account has been created ${OTP}`,
         otp: OTP,
       });
     return res
