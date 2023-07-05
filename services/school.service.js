@@ -5,12 +5,14 @@ const tokenkey = process.env.TOKEN_KEY;
 const validateSchool = (school) => {
   const schema = Joi.object({
     Name: Joi.string().min(6).required(),
-  Phone: Joi.string().max(10).min(10).allow("").required(),
+    Phone: Joi.string().max(10).min(10).allow("").required(),
     Email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ["com", "net", "org"] },
-    }).required().allow(""),
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net", "org"] },
+      })
+      .required()
+      .allow(""),
     Curriculum: Joi.array().items(Joi.string().min(2)).required(),
     Level: Joi.array().items(Joi.string().min(3)).required(),
     Size: Joi.number().min(1).required(),
@@ -30,10 +32,10 @@ const validateFav = (school) => {
   return schema.validate(school);
 };
 const extractMail = (req, res) => {
-const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
+  const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
   const token = fullheader ? fullheader.split(" ")[1] : null;
   if (!token) {
-   throw new Error("Unauthorized");
+    throw new Error("Unauthorized");
   }
   try {
     const decoded = jwt.decode(token, `${tokenkey}`);
@@ -44,18 +46,18 @@ const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
 };
 const extractResetMail = (req, res) => {
   const fullheader = req.header("Reset-Authorization");
-    console.log(fullheader);
-    const token = fullheader ? fullheader.split(" ")[1] : null;
-    if (!token) {
-     throw new Error("Unauthorized");
-    }
-    try {
-      const decoded = jwt.decode(token, `${tokenkey}`);
-      return decoded;
-    } catch (error) {
-      throw new Error("Arggh");
-    }
-  };
+  console.log(fullheader);
+  const token = fullheader ? fullheader.split(" ")[1] : null;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+  try {
+    const decoded = jwt.decode(token, `${tokenkey}`);
+    return decoded;
+  } catch (error) {
+    throw new Error("Arggh");
+  }
+};
 const validateQuery = (query) => {
   const schema = Joi.object({
     curriculum: Joi.string().required().min(3),
@@ -70,10 +72,20 @@ const validateQuery = (query) => {
   });
   return schema.validate(query);
 };
+const validateAdditionalData = (body) => {
+  const schema = Joi.object({
+    Facilities: Joi.array().items(Joi.string().min(3)).required(),
+    Admission: Joi.string().min(3).required(),
+    ExtracurricularActivity: Joi.array().items(Joi.string().min(3)).required(),
+    MissionStatement: Joi.string().min(3).required(),
+  });
+  return schema.validate(body);
+};
 module.exports = {
   validateSchool,
   validateFav,
   extractMail,
   validateQuery,
-  extractResetMail
+  extractResetMail,
+  validateAdditionalData,
 };
