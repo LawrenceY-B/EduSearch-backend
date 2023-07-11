@@ -37,10 +37,19 @@ const searchCourses = async (req, res) => {
       });
     }
 
-    res.status(201).json({ success: true, search: searchresults });
-  } catch (error) {
+    res.status(201).json({ success: true, 
+      message:`${searchresults.length} courses found`,
+      search: searchresults });
+  } catch (Error) {
     res.status(501).json({ success: false, message: error.message });
   }
 };
-
-module.exports = { searchCourses };
+const getSkills = async (req, res) => {
+  try {
+    const skills = await coursemodel.find().distinct("skills");
+    res.status(201).json({ success: true, skills: skills });
+  } catch (error) {
+    res.status(501).json({ success: false, message: error.message });
+  }
+}
+module.exports = { searchCourses, getSkills };

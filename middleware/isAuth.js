@@ -6,19 +6,19 @@ const tokenkey = process.env.TOKEN_KEY;
 const verifyToken = async (req, res, next) => {
   const authHeader = req.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new Error("Invalid Authorization header");
+    res.status(401).json({ message: "Invalid Authorization header" });
   }
   const token = authHeader.split(" ")[1];
   try {
     let decodedToken = jwt.verify(token, `${tokenkey}`);
     if (!decodedToken) {
-      throw new Error("Not Authorized");
+      res.status(401).json({ message: "Not Authorized" });
     }
     req.userId = decodedToken.userId;
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      throw new Error("Token expired");
+      res.status(401).json({ message: "Token expired" });
     }
     throw new Error("Something went wrong");
   }

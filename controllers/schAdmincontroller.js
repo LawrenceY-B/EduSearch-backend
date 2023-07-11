@@ -1,7 +1,6 @@
 const sch = require("../models/schoolModel");
 const Admin = require("../models/SchoolAdmin");
-const mongoose = require('mongoose');
-
+const mongoose = require("mongoose");
 
 const {
   validateSchool,
@@ -34,18 +33,16 @@ const AddNewSchool = async (req, res) => {
     if (school) {
       throw new Error("School already exists");
     }
-    // const extract = extractMail(req, res);
-    // const AdminId = extract.AdminId;
-    // const objectId = mongoose.Types.ObjectId(AdminId);
+    const extract = extractMail(req, res);
+    const AdminMail = extract.AdminMail;
+   
+    const existingAdmin = await Admin.findOne({ Email: AdminMail });
 
-    // console.log(JSON.stringify(objectId));
-    // const existingAdmin = await Admin.findOne({ id: objectId });
-
-    // if (!existingAdmin) {
-    //   throw new Error("Admin does not exist");
-    // }
+    if (!existingAdmin) {
+      throw new Error("Admin does not exist");
+    }
     const result = sch.create({
-      // AdminId,
+      AdminMail,
       Name,
       Email,
       Phone: Phonenumber,
@@ -58,13 +55,13 @@ const AddNewSchool = async (req, res) => {
       Rating,
       Location,
     });
-    // existingAdmin.populate({
-    //   path: "SchoolData",
-    // });
+   const trial= existingAdmin.populate({
+      path: "SchoolData",
+    });
     if (result) {
       return res
         .status(200)
-        .json({ succcess: true, message: "School has been succesfully added" });
+        .json({ succcess: true, message: "School has been succesfully added", data: trial});
     } else {
       throw new Error("School could not be added");
     }

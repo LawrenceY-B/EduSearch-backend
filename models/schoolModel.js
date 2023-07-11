@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const schoolSchema = new Schema({
-  // AdminId:{type:mongoose.Schema.Types.ObjectId,ref:"SchoolAdmin",required:true},
+  AdminMail:{type:String,ref:"SchoolAdmin",required:true},
   Name: { type: String, required: true },
   Email: { type: String, required: true },
   Phone: { type: Number, required: true },
