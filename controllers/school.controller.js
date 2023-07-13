@@ -136,14 +136,12 @@ const DeleteFavorite = async (req, res) => {
       res.status(200).json({ success: true, message: `Deleted favorite` });
     }
   } catch (err) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Oops! Something went wrong" });
+   next(err)
   }
 };
 
 //then add multer and go through aws s3 sdk
-const GetSearchResults = async (req, res) => {
+const GetSearchResults = async (req, res, next) => {
   try {
     const { error } = validateQuery(req.query);
     if (error) {
@@ -194,8 +192,9 @@ const GetSearchResults = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
+
 };
 
 module.exports = {

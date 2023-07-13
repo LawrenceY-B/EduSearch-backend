@@ -17,10 +17,7 @@ const verifyToken = async (req, res, next) => {
     req.userId = decodedToken.userId;
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      res.status(401).json({ message: "Token expired" });
-    }
-    throw new Error("Something went wrong");
+   next(error)
   }
 };
 const verifyResetToken = async (req, res, next) => {
@@ -38,10 +35,7 @@ const verifyResetToken = async (req, res, next) => {
 
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      throw new Error("Token expired");
-    }
-    throw new Error("Something went wrong");
+    next(error);
   }
 };
 const verifySchAdmin = async (req, res, next) => {
@@ -61,11 +55,7 @@ const verifySchAdmin = async (req, res, next) => {
     req.AdminRole = decoded.AdminRole;
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired" });
-    }
-    res.status(500).json({ message: "something went wrong" });
-    // console.log(error);
+    next(error)
   }
 };
 const verifyUniAdmin = async (req, res, next) => {
@@ -86,10 +76,8 @@ const verifyUniAdmin = async (req, res, next) => {
     req.AdminRole = decoded.AdminRole;
     next();
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired" });
-    }
-    res.status(500).json({ message: "something went wrong" });
+   
+   next(error)
     // console.log(error);
   }
 };

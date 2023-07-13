@@ -9,6 +9,6 @@ router.post("/admin/addnewuniversity",verifyUniAdmin ,Addnewuniversity);
 router.post("/admin/addcourses",verifyUniAdmin ,Addcourses);
 router.get("/admin/getalluniversities",verifyUniAdmin ,GetAllCourses);
 
-router.get("/user/searchcourses",verifyToken,searchCourses);
+router.post("/user/searchcourses",verifyToken,searchCourses);
 router.get("/user/getskills",getSkills);
 module.exports = router;

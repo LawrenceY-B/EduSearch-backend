@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const { validatesearchcourse } = require("../services/uni.service");
 const { extractMail } = require("../services/school.service");
 
-const searchCourses = async (req, res) => {
+const searchCourses = async (req, res, next) => {
   try {
     const { course, aggregate, skills,feepaying } = req.body;
     const { error } = validatesearchcourse(req.body);
@@ -41,15 +41,15 @@ const searchCourses = async (req, res) => {
       message:`${searchresults.length} courses found`,
       search: searchresults });
   } catch (Error) {
-    res.status(501).json({ success: false, message: error.message });
+    next(Error);
   }
 };
-const getSkills = async (req, res) => {
+const getSkills = async (req, res, next) => {
   try {
     const skills = await coursemodel.find().distinct("skills");
     res.status(201).json({ success: true, skills: skills });
   } catch (error) {
-    res.status(501).json({ success: false, message: error.message });
+    next(error);
   }
 }
 module.exports = { searchCourses, getSkills };

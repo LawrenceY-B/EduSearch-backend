@@ -1,7 +1,7 @@
 {
-  "name": "remittance-backend",
+  "name": "edusearch-backend",
   "version": "1.0.0",
-  "description": "backend for remittance app",
+  "description": "backend for Edusearch app",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
