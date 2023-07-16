@@ -3,6 +3,9 @@ const ErrorHandler = (err, req, res, next) => {
     let errMsg = err.message || 'Something went wrong';
     if (errMsg === 'jwt expired') {
         errMsg = 'Token expired'}
+        else if (errMsg === 'jwt malformed') {
+            errMsg = 'Token expired'
+        }
     res.status(errStatus).json({
         success: false,
         status: errStatus,
