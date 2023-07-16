@@ -1,7 +1,6 @@
 const sch = require("../models/schoolModel");
 const Favorite = require("../models/fav.model");
 const User = require("../models/user");
-const aob = require("../models/aob.model");
 const {
   validateFav,
   extractMail,
@@ -80,7 +79,7 @@ const GetFavorite = async (req, res) => {
         },
       })
       .select("-Password -Email -Phonenumber");
-console.log(userfavorites)
+// console.log(userfavorites)
     if (!userfavorites) {
     throw new Error ("Error while getting favorites")
     } else {

@@ -27,7 +27,7 @@ const courseSchema = new Schema({
   other_info: { type: String, required: true },
   course_description: { type: String, required: true },
   universityName: { type: String, required: true },
-  universityId: { type: mongoose.Schema.Types.ObjectId, ref: "University" },
+  universityId: [{ type: mongoose.Schema.Types.ObjectId, ref: "University" }],
   skills: [{ type: String }],
   career_paths: [{ type: String }],
 });
