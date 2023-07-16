@@ -1,7 +1,10 @@
 const User = require("../../../models/user");
 require("dotenv").config();
 const tokenkey = process.env.TOKEN_KEY;
-const {extractResetMail} = require("../../../services/school.service");
+const {
+  extractResetMail,
+  extractMail,
+} = require("../../../services/school.service");
 const bcrypt = require("bcrypt");
 const {
   validateUser,
@@ -15,7 +18,7 @@ const {
 } = require("../../../services/auth.service");
 const jwt = require("jsonwebtoken");
 //Creating a new user
-const AddNewUser = async (req, res) => {
+const AddNewUser = async (req, res, next) => {
   try {
     const { error } = validateUser(req.body);
     if (error)
@@ -34,7 +37,6 @@ const AddNewUser = async (req, res) => {
         .status(403)
         .json({ success: false, message: "Phone already in use" });
     const result = await User.create({
-      
       Name: req.body.Name,
       Password: password,
       Phonenumber: phone,
@@ -59,14 +61,11 @@ const AddNewUser = async (req, res) => {
       .status(400)
       .json({ success: false, message: "Couldn't add user details" });
   } catch (error) {
-    // console.log(error);
-    return res
-      .status(400)
-      .json({ success: false, message: "Something went wrong" });
+    next(error);
   }
 };
 //login an existing user
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { error } = validateLogin(req.body);
     if (error) {
@@ -91,13 +90,12 @@ const login = async (req, res) => {
     }
     bcrypt.compare(req.body.Password, user.Password, (error, outcome) => {
       if (error) {
-        console.error(error);
-        return res.status(500).json({ message: "An error occurred" });
+        next(error);
       }
       if (outcome) {
         /**Add new token**/
         const token = jwt.sign(
-          { userEmail: user.Email, userId: user._id, },
+          { userEmail: user.Email, userId: user._id },
           `${tokenkey}`,
           {
             expiresIn: "4h",
@@ -121,15 +119,12 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(400)
-      .json({ success: false, message: "Something went wrong" });
+    next(error);
   }
 };
 //TO_DO change phone number to email
 //test and see if changes the value on the db
-const verifyNumber = async (req, res) => {
+const verifyNumber = async (req, res, next) => {
   try {
     const { error } = validateOTP(req.body);
     if (error)
@@ -153,7 +148,6 @@ const verifyNumber = async (req, res) => {
     }
     //check otp status
     const verify = await verifyOTP(phone, otp);
-    console.log(verify);
     if (verify === "wrong")
       return res.status(400).json({
         success: false,
@@ -165,8 +159,8 @@ const verifyNumber = async (req, res) => {
         message: "You used an expired OTP. Please generate a new one",
       });
     else if (verify === "valid") {
-     result.isVerified=true;
-     result.save();
+      result.isVerified = true;
+      result.save();
 
       return res.status(200).json({
         success: true,
@@ -178,14 +172,11 @@ const verifyNumber = async (req, res) => {
       message: "You used the wrong OTP. Check and try again/error",
     });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Sorry, something went wrong" });
+    next(error);
   }
 };
 //resend otp
-const resendOTP = async (req, res) => {
+const resendOTP = async (req, res, next) => {
   try {
     let phone = req.body.Phonenumber;
     if (!phone)
@@ -197,16 +188,17 @@ const resendOTP = async (req, res) => {
     const Otp = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
     // sendSMS(phone, text);
-    return res.status(201).json({ success: true, message:"A new OTP has been sent to your number",otp: Otp });
+    return res.status(201).json({
+      success: true,
+      message: "A new OTP has been sent to your number",
+      otp: Otp,
+    });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Sorry, something went wrong" });
+    next(error);
   }
 };
 //logout
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   try {
     const fullheader = req.headers.authorization;
     const token = fullheader.split(" ")[1];
@@ -229,20 +221,18 @@ const logout = async (req, res) => {
       return res.status(200).json({ message: "Logged out", token: newToken });
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Sorry, something went wrong" });
+    next(error);
   }
 };
 //reset password
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   try {
     const password = req.body;
     const { error } = await validatePassword(password);
     if (error) return res.status(400).json({ message: error.message });
 
-  const Userdetail = extractResetMail(req,res)
-   const UserMail = Userdetail.userEmail
+    const Userdetail = extractResetMail(req, res);
+    const UserMail = Userdetail.userEmail;
 
     const updatePass = await User.findOne({ Email: UserMail });
     if (!updatePass) {
@@ -257,15 +247,14 @@ const resetPassword = async (req, res) => {
         res.status(401).json({ message: "something went wrong" });
       } else {
         res.status(201).json({ message: "Passwords updated successfully" });
-        console.log(updatePass);
       }
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 //work on forgot password logic
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res, next) => {
   try {
     let phone = req.body;
     const { error } = validatePhoneNumber(phone);
@@ -286,12 +275,10 @@ const forgotPassword = async (req, res) => {
         .json({ success: true, message: `Enter your ${OTP} in the stage` });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: `We're working on this` });
+    next(error);
   }
 };
-const verifyreset = async (req, res) => {
+const verifyreset = async (req, res, next) => {
   try {
     const { error } = validateOTP(req.body);
     if (error)
@@ -315,7 +302,7 @@ const verifyreset = async (req, res) => {
     }
     //check otp status
     const verify = await verifyOTP(phone, otp);
-    
+
     if (verify === "wrong")
       return res.status(400).json({
         success: false,
@@ -342,12 +329,41 @@ const verifyreset = async (req, res) => {
       message: "You used the wrong OTP. Check and try again/error",
     });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Sorry, something went wrong" });
+    next(error);
   }
 };
+const getUserData = async (req, res, next) => {
+  try {
+    const userdetail = extractMail(req, res);
+    const usermail = userdetail.userEmail;
+    const result = await User.findOne({ Email: usermail }).select("-Password -FavoriteSchools");
+    if (!result) {
+      return res.status(401).json({ message: "No User found" });
+    }
+    return res.status(200).json({ message: "User found", data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+const editProfile = async (req, res, next) => {
+  try {
+    const userdetail = extractMail(req, res);
+    const usermail = userdetail.userEmail;
+    // const { error } = validateProfile(req.body);
+    if (error) return res.status(400).json({ message: error.message });
+    const { Name, Phonenumber, Email, ImgUrl } = req.body;
+    console.log(usermail);
+    const Mail = { Email: usermail };
+    const update = { Name, Phonenumber, Email, ImgUrl };
+    const trial = await User.findOneAndUpdate(Mail, update, { new: true });
+    if (!trial) {
+      return res.status(401).json({ message: "something went wrong" });
+    }
+    return res.status(200).json({ message: "User updated", data: trial });
+  } catch (error) {
+    next(error);
+  }
+}
 
 module.exports = {
   AddNewUser,
@@ -358,13 +374,5 @@ module.exports = {
   resendOTP,
   resetPassword,
   verifyreset,
+  getUserData,
 };
-// const {error}= await validateNumber(phone);
-// if (error) res.status(400).json({error: error.message});
-// const validatedPhoneNumber = req.body.Phonenumber.replace(
-//   req.body.Phonenumber.slice(0, 1),
-//   "233"
-// );
-
-// const OTP = await generateOTP(validatedPhoneNumber);
-// const hashedOtp = await bcrypt.hash(OTP, 8);

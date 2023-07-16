@@ -8,6 +8,7 @@ const {
   resendOTP,
   resetPassword,
   verifyreset,
+  getUserData,
 } = require("../controllers/auth/user/UserAuth");
 const {
   AdminAddNewUser,
@@ -41,6 +42,7 @@ router.get("/logout", verifyToken, logout);
 router.post("/forgotpass", forgotPassword);
 router.post("/verifyresetotp", verifyreset);
 router.post("/resetpass", verifyResetToken, resetPassword);
+router.get("/getprofile", verifyToken, getUserData);
 
 // School Admin Authentication
 router.post("/Schooladmin/signup", AdminAddNewUser);
