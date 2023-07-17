@@ -49,7 +49,7 @@ const AddNewUser = async (req, res, next) => {
     const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
 
     //send otp
-    // sendSMS(phone, text)
+    sendSMS(phone, text)
     //error handling
     if (result)
       return res.status(201).json({
@@ -84,9 +84,13 @@ const login = async (req, res, next) => {
         .json({ success: false, message: "User not found" });
     }
     if (user.isVerified === false) {
+      const OTP = await generateOTP(phone);
+      const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`
+      // sendSMS(phone, text);
       return res
         .status(403)
-        .json({ success: false, message: "Number has not been verified" });
+        .json({ success: false, message: "Please verify number", text: text });
+      
     }
     bcrypt.compare(req.body.Password, user.Password, (error, outcome) => {
       if (error) {
@@ -95,21 +99,19 @@ const login = async (req, res, next) => {
       if (outcome) {
         /**Add new token**/
         const token = jwt.sign(
-          { userEmail: user.Email, userId: user._id },
+          { userEmail: user.Email, userId: user._id, phone: user.Phonenumber },
           `${tokenkey}`,
           {
-            expiresIn: "4h",
+            expiresIn: "5h",
           }
         );
         user.token = token;
         user.save();
         const text = `You have succesfully logged in`;
-        // sendSMS(phone, text);
         return res.status(201).json({
           success: true,
           login_message: text,
           message: "Authentication successful",
-          userID: user._id.toString(),
           token: token,
         });
       } else {
@@ -187,7 +189,7 @@ const resendOTP = async (req, res, next) => {
 
     const Otp = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
-    // sendSMS(phone, text);
+    sendSMS(phone, text);
     return res.status(201).json({
       success: true,
       message: "A new OTP has been sent to your number",
@@ -335,8 +337,8 @@ const verifyreset = async (req, res, next) => {
 const getUserData = async (req, res, next) => {
   try {
     const userdetail = extractMail(req, res);
-    const usermail = userdetail.userEmail;
-    const result = await User.findOne({ Email: usermail }).select("-Password -FavoriteSchools");
+    const userNumber = userdetail.phone;
+    const result = await User.findOne({ Phonenumber: userNumber }).select("-Password -FavoriteSchools");
     if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
