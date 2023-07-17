@@ -46,7 +46,7 @@ const AddNewUser = async (req, res, next) => {
 
     //generate otp
     const OTP = await generateOTP(phone);
-    const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
+    const text = `Your EduSearch verification code is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
 
     //send otp
     sendSMS(phone, text)
@@ -85,8 +85,8 @@ const login = async (req, res, next) => {
     }
     if (user.isVerified === false) {
       const OTP = await generateOTP(phone);
-      const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`
-      // sendSMS(phone, text);
+      const text = `Your EduSearch verification code is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`
+      sendSMS(phone, text);
       return res
         .status(403)
         .json({ success: false, message: "Please verify number", text: text });
@@ -188,7 +188,7 @@ const resendOTP = async (req, res, next) => {
     phone = phone.replace(req.body.Phonenumber.slice(0, 1), "233");
 
     const Otp = await generateOTP(phone);
-    const text = `Your one-time password to activate your account is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
+    const text = `Your EduSearch verification code is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
     sendSMS(phone, text);
     return res.status(201).json({
       success: true,
@@ -271,10 +271,10 @@ const forgotPassword = async (req, res, next) => {
         .json({ success: false, message: "Phonenumber does not exist" });
     } else {
       const text = `Enter this code ${OTP} to reset password`;
-      // sendSMS(phone,text)
+      sendSMS(phone,text)
       return res
         .status(202)
-        .json({ success: true, message: `Enter your ${OTP} in the stage` });
+        .json({ success: true, message: `A short code has been sent to you`, otp: OTP });
     }
   } catch (error) {
     next(error);

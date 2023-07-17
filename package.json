@@ -22,6 +22,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^6.3.0",
     "nodemon": "^2.0.16",
-    "otp-generator": "^4.0.0"
+    "otp-generator": "^4.0.0",
+    "twilio": "^4.14.0"
   }
 }

@@ -4,31 +4,44 @@ const otpGenerator = require("otp-generator");
 const bcrypt = require("bcrypt");
 const OTP = require("../models/otpModel");
 const Vonage = require("@vonage/server-sdk");
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const MessageSID = process.env.TWILIO_MESSAGING_SERVICE_SID;
+const client = require("twilio")(accountSid, authToken);
 
-const vonsecret = process.env.VONAGE_SECRET;
-const vonkey = process.env.VONAGE_KEY;
-const vonage = new Vonage({
-  apiKey: `${vonkey}`,
-  apiSecret: `${vonsecret}`,
-});
+// const vonsecret = process.env.VONAGE_SECRET;
+// const vonkey = process.env.VONAGE_KEY;
+// const vonage = new Vonage({
+//   apiKey: `${vonkey}`,
+//   apiSecret: `${vonsecret}`,
+// });
 
 const sendSMS = (to, text) => {
-  const from = "EduSearch";
+  client.messages
+  .create({
+      body: `${text}`,
+      messagingServiceSid: `${MessageSID}`,
+      to: `${to}`,
+    })
+    .then((message) => console.log(message.sid))
+    .catch((error) => console.error(error));
 
-  vonage.message.sendSms(from, to, text, (err, responseData) => {
-    if (err) {
-      console.log(err);
-    } else {
-      if (responseData.messages[0]["status"] === "0") {
-        console.log("Message sent successfully.");
-      } else {
-        console.log(
-          `Message failed with error: ${responseData.messages[0]["error-text"]}`
-        );
-      }
-    }
-  });
 };
+// const from = "EduSearch";
+
+// vonage.message.sendSms(from, to, text, (err, responseData) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     if (responseData.messages[0]["status"] === "0") {
+//       console.log("Message sent successfully.");
+//     } else {
+//       console.log(
+//         `Message failed with error: ${responseData.messages[0]["error-text"]}`
+//       );
+//     }
+//   }
+// });
 
 const generateOTP = async (phone) => {
   try {
