@@ -44,7 +44,7 @@ const AdminAddNewUser = async (req, res) => {
     const text = `Your one-time password to activate your account is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
 
     //send otp
-    // sendSMS(phone, text)
+    sendSMS(phone, text)
     //error handling
     if (result)
       return res.status(201).json({
@@ -101,7 +101,7 @@ const Adminlogin = async (req, res) => {
         user.token = token;
         user.save();
         const text = `You have succesfully logged in`;
-        // sendSMS(phone, text);
+        sendSMS(phone, text);
         return res.status(201).json({
           success: true,
           login_message: text,
@@ -186,7 +186,7 @@ const AdminresendOTP = async (req, res) => {
 
     const Otp = await generateOTP(phone);
     const text = `Your one-time password to activate your account is ${Otp}.\n\nThis password will expire in 10 minutes.\n\n`;
-    // sendSMS(phone, text);
+    sendSMS(phone, text);
     return res.status(201).json({ success: true, otp: Otp });
   } catch (error) {
     console.log(error);
@@ -274,7 +274,7 @@ const AdminforgotPassword = async (req, res) => {
         .json({ success: false, message: "Phonenumber does not exist" });
     } else {
       const text = `Enter this code ${OTP} to reset password`;
-      // sendSMS(phone,text)
+      sendSMS(phone,text)
       return res
         .status(202)
         .json({ success: true, message: `Enter your ${OTP} in the stage` });
