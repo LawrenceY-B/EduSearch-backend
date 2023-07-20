@@ -17,7 +17,7 @@ const validateSchool = (school) => {
     Level: Joi.array().items(Joi.string().min(3)).required(),
     Size: Joi.number().min(1).required(),
     Background: Joi.array().items(Joi.string().min(3)).required(),
-    Price: Joi.number().min(550).required(),
+    Price: Joi.number().min(450).required(),
     Rating: Joi.string().min(0).required(),
     Location: Joi.string().min(3).required(),
     ImgUrl: Joi.string().min(3).uri().required(),
@@ -72,6 +72,13 @@ const validateQuery = (query) => {
   });
   return schema.validate(query);
 };
+const validateSchoolQuery= (school) => {
+  const schema =Joi.object({
+    school:Joi.string().required().min(3)
+  });
+  return schema.validate(school);
+}
+
 const validateAdditionalData = (body) => {
   const schema = Joi.object({
     Facilities: Joi.array().items(Joi.string().min(3)).required(),
@@ -88,4 +95,5 @@ module.exports = {
   validateQuery,
   extractResetMail,
   validateAdditionalData,
+  validateSchoolQuery
 };

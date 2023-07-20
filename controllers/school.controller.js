@@ -5,6 +5,7 @@ const {
   validateFav,
   extractMail,
   validateQuery,
+  validateSchoolQuery,
 } = require("../services/school.service");
 const jwt = require("jsonwebtoken");
 const Sch = require("../models/schoolModel");
@@ -79,11 +80,17 @@ const GetFavorite = async (req, res) => {
         },
       })
       .select("-Password -Email -Phonenumber");
-// console.log(userfavorites)
+    // console.log(userfavorites)
     if (!userfavorites) {
-    throw new Error ("Error while getting favorites")
+      throw new Error("Error while getting favorites");
     } else {
-      res.status(201).json({ success: true, message:"Keep an eye on your favorite schools! 👀", favorites: userfavorites });
+      res
+        .status(201)
+        .json({
+          success: true,
+          message: "Keep an eye on your favorite schools! 👀",
+          favorites: userfavorites,
+        });
     }
   } catch (error) {
     res.status(500).json({
@@ -135,7 +142,7 @@ const DeleteFavorite = async (req, res) => {
       res.status(200).json({ success: true, message: `Deleted favorite` });
     }
   } catch (err) {
-   next(err)
+    next(err);
   }
 };
 
@@ -193,12 +200,35 @@ const GetSearchResults = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
 };
 
+const SearchSchool = async (req, res, next) => {
+  try {
+    const { error } = validateSchoolQuery(req.body);
+    if (error)
+      return res
+        .status(400)
+        .json({ success: false, message: error.details[0].message });
+    const { school } = req.body;
+    console.log(school);
+    const result = await sch.find({ Name: school });
+    console.log(result);
+    if (result.length <1 || !result) {
+      return res
+        .status(400)
+        .json({ success: false, message: " Something went wrong" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "School has been found", data: result });
+  } catch (error) {
+    next(error);
+  }
+};
 module.exports = {
   AddFavorite,
   DeleteFavorite,
   GetFavorite,
   GetSearchResults,
+  SearchSchool,
 };

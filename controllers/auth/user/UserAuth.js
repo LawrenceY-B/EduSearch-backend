@@ -102,7 +102,7 @@ const login = async (req, res, next) => {
           { userEmail: user.Email, userId: user._id, phone: user.Phonenumber },
           `${tokenkey}`,
           {
-            expiresIn: "5h",
+            expiresIn: "12h",
           }
         );
         user.token = token;
