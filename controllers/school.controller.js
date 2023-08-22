@@ -210,9 +210,9 @@ const SearchSchool = async (req, res, next) => {
         .status(400)
         .json({ success: false, message: error.details[0].message });
     const { school } = req.body;
-    console.log(school);
+    // console.log(school);
     const result = await sch.find({ Name: school });
-    console.log(result);
+    // console.log(result);
     if (result.length <1 || !result) {
       return res
         .status(400)

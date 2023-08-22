@@ -15,6 +15,8 @@ const {
   sendSMS,
   validatePassword,
   validatePhoneNumber,
+  ImageUpload,
+  validateProfile,
 } = require("../../../services/auth.service");
 const jwt = require("jsonwebtoken");
 //Creating a new user
@@ -49,7 +51,7 @@ const AddNewUser = async (req, res, next) => {
     const text = `Your EduSearch verification code is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
 
     //send otp
-    sendSMS(phone, text)
+    sendSMS(phone, text);
     //error handling
     if (result)
       return res.status(201).json({
@@ -85,12 +87,11 @@ const login = async (req, res, next) => {
     }
     if (user.isVerified === false) {
       const OTP = await generateOTP(phone);
-      const text = `Your EduSearch verification code is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`
+      const text = `Your EduSearch verification code is ${OTP}.\n\nThis password will expire in 5 minutes.\n\n`;
       sendSMS(phone, text);
       return res
         .status(403)
         .json({ success: false, message: "Please verify number", text: text });
-      
     }
     bcrypt.compare(req.body.Password, user.Password, (error, outcome) => {
       if (error) {
@@ -271,10 +272,12 @@ const forgotPassword = async (req, res, next) => {
         .json({ success: false, message: "Phonenumber does not exist" });
     } else {
       const text = `Enter this code ${OTP} to reset password`;
-      sendSMS(phone,text)
-      return res
-        .status(202)
-        .json({ success: true, message: `A short code has been sent to you`, otp: OTP });
+      sendSMS(phone, text);
+      return res.status(202).json({
+        success: true,
+        message: `A short code has been sent to you`,
+        otp: OTP,
+      });
     }
   } catch (error) {
     next(error);
@@ -338,7 +341,9 @@ const getUserData = async (req, res, next) => {
   try {
     const userdetail = extractMail(req, res);
     const userNumber = userdetail.phone;
-    const result = await User.findOne({ Phonenumber: userNumber }).select("-Password -FavoriteSchools");
+    const result = await User.findOne({ Phonenumber: userNumber }).select(
+      "-Password -FavoriteSchools"
+    );
     if (!result) {
       return res.status(401).json({ message: "No User found" });
     }
@@ -349,23 +354,50 @@ const getUserData = async (req, res, next) => {
 };
 const editProfile = async (req, res, next) => {
   try {
+    //extractmail from token to verify user is logged in
     const userdetail = extractMail(req, res);
     const usermail = userdetail.userEmail;
-    // const { error } = validateProfile(req.body);
+    //validate user query
+    const { error } = validateProfile(req.body);
     if (error) return res.status(400).json({ message: error.message });
-    const { Name, Phonenumber, Email, ImgUrl } = req.body;
-    console.log(usermail);
-    const Mail = { Email: usermail };
-    const update = { Name, Phonenumber, Email, ImgUrl };
-    const trial = await User.findOneAndUpdate(Mail, update, { new: true });
-    if (!trial) {
-      return res.status(401).json({ message: "something went wrong" });
+    const { Name, Phonenumber, Email } = req.body;
+    const phone = Phonenumber.replace(Phonenumber.slice(0, 1), "233");
+    const image = req.file;
+    //upload image to S3 bucket
+    let ImgUrl
+    if(image){
+      const link = await ImageUpload(image);
+      ImgUrl = link
     }
-    return res.status(200).json({ message: "User updated", data: trial });
+    
+    console.log(ImgUrl);
+    const Mail = { Email: usermail };
+    const update = {
+      Name: Name,
+      Phonenumber: phone,
+      Email: Email,
+      ImgUrl: ImgUrl,
+    };
+    const user = await User.findOneAndUpdate(Mail, update, { new: true }).select(
+      "-Password -FavoriteSchools"
+    );;
+    //generate new token with the new email
+    const token = jwt.sign(
+      { userEmail: user.Email, userId: user._id, phone: user.Phonenumber },
+      `${tokenkey}`,
+      {
+        expiresIn: "12h",
+      }
+    );
+    
+    if (!user) {
+      return res.status(401).json({ message: "User not authorized" });
+    }
+    return res.status(200).json({ message: "User updated", data: user, token: token });
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Something went wrong", error: error });
   }
-}
+};
 
 module.exports = {
   AddNewUser,
@@ -377,4 +409,5 @@ module.exports = {
   resetPassword,
   verifyreset,
   getUserData,
+  editProfile,
 };

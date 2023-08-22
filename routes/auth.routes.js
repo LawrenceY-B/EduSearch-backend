@@ -1,4 +1,7 @@
 const express = require("express");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 const {
   AddNewUser,
   login,
@@ -9,6 +12,7 @@ const {
   resetPassword,
   verifyreset,
   getUserData,
+  editProfile,
 } = require("../controllers/auth/user/UserAuth");
 const {
   AdminAddNewUser,
@@ -43,6 +47,7 @@ router.post("/forgotpass", forgotPassword);
 router.post("/verifyresetotp", verifyreset);
 router.post("/resetpass", verifyResetToken, resetPassword);
 router.get("/getprofile", verifyToken, getUserData);
+router.get("/editprofile",upload.single('images'), verifyToken, editProfile);
 
 // School Admin Authentication
 router.post("/Schooladmin/signup", AdminAddNewUser);
