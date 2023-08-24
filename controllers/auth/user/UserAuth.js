@@ -357,6 +357,7 @@ const editProfile = async (req, res, next) => {
     //extractmail from token to verify user is logged in
     const userdetail = extractMail(req, res);
     const usermail = userdetail.userEmail;
+    const userID=userdetail.userId
     //validate user query
     const { error } = validateProfile(req.body);
     if (error) return res.status(400).json({ message: error.message });
@@ -366,7 +367,7 @@ const editProfile = async (req, res, next) => {
     //upload image to S3 bucket
     let ImgUrl
     if(image){
-      const link = await ImageUpload(image);
+      const link = await ImageUpload(image,next,userID);
       ImgUrl = link
     }
     
@@ -395,7 +396,7 @@ const editProfile = async (req, res, next) => {
     }
     return res.status(200).json({ message: "User updated", data: user, token: token });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+   next(error)
   }
 };
 

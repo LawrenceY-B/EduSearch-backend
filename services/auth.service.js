@@ -8,12 +8,8 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const MessageSID = process.env.TWILIO_MESSAGING_SERVICE_SID;
 const client = require("twilio")(accountSid, authToken);
-const {
-        Upload
-      } = require("@aws-sdk/lib-storage"),
-      {
-        S3
-      } = require("@aws-sdk/client-s3");
+const { Upload } = require("@aws-sdk/lib-storage"),
+  { S3 } = require("@aws-sdk/client-s3");
 
 // const vonsecret = process.env.VONAGE_SECRET;
 // const vonkey = process.env.VONAGE_KEY;
@@ -123,38 +119,40 @@ const validateOTP = (person) => {
   });
   return schema.validate(person);
 };
-const validateProfile=(person)=>{
-  const schema=Joi.object({
+const validateProfile = (person) => {
+  const schema = Joi.object({
     Name: Joi.string().min(3),
     Phonenumber: Joi.string().max(10).min(10).allow(""),
-    Email: Joi.string()
-  })
-  return schema.validate(person);
-}
-
-const ImageUpload = async (images) => {
-  
-  const awsS3 = new S3({
-    accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
-    secretAccessKey: `${process.env.AWS_SECRET_ACCESS_KEY}`,
-    region: "eu-west-2",
+    Email: Joi.string(),
   });
+  return schema.validate(person);
+};
 
+const ImageUpload = async (images, next,userid) => {
   try {
-    // Upload the image to S3
+    const awsS3 = new S3({
+      accessKeyId: `${process.env.AWS_ACCESS_KEY}`,
+      secretAccessKey: `${process.env.AWS_SECRET_ACCESS_KEY}`,
+      region: "eu-west-2",
+    });
+    let MIMEtype=images.mimetype
+    const fileformat = MIMEtype.replace(MIMEtype.slice(0,6),".")
     const params = {
       Bucket: "edusearchbucket",
-      Key: `${Date.now()}-${images.originalname}`,
+      Key: `${userid}${fileformat}`,
       Body: images.buffer,
-      ACL: "public-read", // Make the image publicly accessible
-    };    
+      ACL: "public-read",
+    };
     const uploadedImage = await new Upload({
       client: awsS3,
-      params
+      params,
     }).done();
+
     return uploadedImage.Location;
+    
   } catch (err) {
-    console.log(err);  }
+    next(err);
+  }
 };
 /**
  * Verify OTP for a given phone number
@@ -209,5 +207,5 @@ module.exports = {
   validateAdmin,
   validateAdminLogin,
   ImageUpload,
-  validateProfile
+  validateProfile,
 };
