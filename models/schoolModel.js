@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const schoolSchema = new Schema({
-  AdminMail: { type: String, ref: "SchoolAdmin", required: true },
+  AdminID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "schooladmin",
+    required: true,
+  },
   Name: { type: String, required: true },
   Email: { type: String, required: true },
   Phone: { type: Number, required: true },
@@ -15,12 +19,11 @@ const schoolSchema = new Schema({
   Price: { type: Number, required: true },
   Rating: { type: Number, required: true },
   Location: { type: String, required: true },
-  Facilities: { type: String, required: true },
-  ExtracurricularActivity: { type: String, required: true },
-  Missionstatement: { type: String, required: true },
-  Admissiondetails: { type: String, required: true },
-  // imgUrl: { type: String },
+  Facilities: { type: String, required: false },
+  ExtracurricularActivity: { type: String, required: false },
+  MissionStatement: { type: String, required: false },
+  AdmissionDetails: { type: String, required: false },
 });
 
-const Sch = mongoose.model("Schools", schoolSchema);
+const Sch = mongoose.model("schools", schoolSchema);
 module.exports = Sch;

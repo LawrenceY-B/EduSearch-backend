@@ -21,6 +21,11 @@ const validateSchool = (school) => {
     Rating: Joi.string().min(0).required(),
     Location: Joi.string().min(3).required(),
     ImgUrl: Joi.string().min(3).uri().required(),
+    Facilities: Joi.string().min(3),
+    ExtracurricularActivity: Joi.string().min(3),
+    MissionStatement: Joi.string().min(3),
+    AdmissionDetails: Joi.string().min(3)
+
   });
   return schema.validate(school);
 };
@@ -31,17 +36,17 @@ const validateFav = (school) => {
   });
   return schema.validate(school);
 };
-const extractMail = (req, res) => {
+const extractMail = (req, res,next) => {
   const fullheader = req.get("Authorization") || req.get("Reset-Authorization");
   const token = fullheader ? fullheader.split(" ")[1] : null;
   if (!token) {
-    throw new Error("Unauthorized");
+    console.log("Unauthorized");
   }
   try {
     const decoded = jwt.decode(token, `${tokenkey}`);
     return decoded;
   } catch (error) {
-    throw new Error("Arggh");
+    next(error)
   }
 };
 const extractResetMail = (req, res) => {
