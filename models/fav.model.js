@@ -6,7 +6,7 @@ const FavoriteSchema = new Schema({
 
   School: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Schools",
+    ref: "schools",
   },
   UserData: {
     type: mongoose.Schema.Types.ObjectId,

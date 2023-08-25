@@ -360,7 +360,7 @@ const editProfile = async (req, res, next) => {
     const userID=userdetail.userId
     //validate user query
     const { error } = validateProfile(req.body);
-    if (error) return res.status(400).json({ message: error.message });
+    if (error) return res.status(409).json({ message: error.message });
     const { Name, Phonenumber, Email } = req.body;
     const phone = Phonenumber.replace(Phonenumber.slice(0, 1), "233");
     const image = req.file;

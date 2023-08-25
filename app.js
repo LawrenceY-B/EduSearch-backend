@@ -1,7 +1,7 @@
 
 const express = require("express");
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 const port = 3003;
 const Authroutes = require("./routes/auth.routes");
 const Schoolroutes = require("./routes/sch.routes");
