@@ -44,6 +44,7 @@ const AddNewUser = async (req, res, next) => {
       Phonenumber: phone,
       Email: Email,
       isVerified: false,
+      ImgUrl: `${process.env.DEFAULT_IMGURL}`,
     });
 
     //generate otp
